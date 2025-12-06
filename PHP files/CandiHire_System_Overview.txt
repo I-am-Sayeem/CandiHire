@@ -1,0 +1,200 @@
+================================================================================
+                           CANDIHIRE SYSTEM OVERVIEW
+                    Database Management System Architecture
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                FRONTEND LAYER                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Login & Signup  │  Candidate Dashboard  │  Company Dashboard  │  Job Posts │
+│  CV Builder      │  CV Checker          │  AI Matching       │  Interviews │
+│  Exam System     │  Application Status  │  Notifications     │  Profiles   │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                        │
+                                        ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            APPLICATION LAYER                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Session Manager  │  Authentication    │  File Upload      │  Data Handler │
+│  Notification     │  CV Processing     │  Exam Creation    │  AI Matching  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                        │
+                                        ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             DATABASE LAYER                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                          MySQL Database (candihire)                        │
+│                                                                             │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐        │
+│  │   USER TABLES   │    │   JOB TABLES    │    │ ASSESSMENT TABLES│        │
+│  │                 │    │                 │    │                 │        │
+│  │ candidate_login │    │ job_postings    │    │ exams           │        │
+│  │ Company_login   │    │ job_applications│    │ exam_questions  │        │
+│  │ candidate_cv    │    │ job_seeking_posts│   │ exam_attempts   │        │
+│  │ candidate_exp   │    │                 │    │ exam_answers    │        │
+│  │ candidate_edu   │    │                 │    │                 │        │
+│  │ candidate_skills│    │                 │    │                 │        │
+│  │ candidate_proj  │    │                 │    │                 │        │
+│  └─────────────────┘    └─────────────────┘    └─────────────────┘        │
+│                                                                             │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐        │
+│  │ INTERVIEW TABLES│    │   AI TABLES     │    │  SYSTEM TABLES  │        │
+│  │                 │    │                 │    │                 │        │
+│  │ interviews      │    │ ai_matching_    │    │ user_sessions   │        │
+│  │ interview_sched │    │ results         │    │ notifications   │        │
+│  │                 │    │ cv_checker_     │    │ system_settings │        │
+│  │                 │    │ results         │    │                 │        │
+│  └─────────────────┘    └─────────────────┘    └─────────────────┘        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                            KEY SYSTEM MODULES
+================================================================================
+
+1. USER MANAGEMENT
+   ├── Candidate Registration & Login
+   ├── Company Registration & Login
+   ├── Profile Management
+   ├── Session Handling
+   └── Authentication & Authorization
+
+2. JOB MANAGEMENT
+   ├── Job Posting Creation
+   ├── Job Seeking Posts
+   ├── Application Tracking
+   ├── Application Status Updates
+   └── Job Feed Management
+
+3. ASSESSMENT SYSTEM
+   ├── Manual Exam Creation
+   ├── Auto Exam Generation
+   ├── Question Banks
+   ├── Exam Scheduling
+   ├── Attempt Tracking
+   └── Results & Review
+
+4. INTERVIEW MANAGEMENT
+   ├── Interview Scheduling
+   ├── Interview Types (Technical, HR, Behavioral)
+   ├── Interview Modes (Virtual, Onsite, Phone)
+   ├── Feedback System
+   └── Rating & Evaluation
+
+5. AI-POWERED FEATURES
+   ├── Candidate-Job Matching
+   ├── CV Analysis & Scoring
+   ├── Intelligent Recommendations
+   ├── Skill Matching Algorithm
+   └── Performance Analytics
+
+6. CV PROCESSING
+   ├── CV Upload & Storage
+   ├── CV Analysis & Parsing
+   ├── Skills Extraction
+   ├── Match Percentage Calculation
+   └── Export Functionality
+
+7. NOTIFICATION SYSTEM
+   ├── Real-time Notifications
+   ├── Email Alerts
+   ├── Application Updates
+   ├── Interview Reminders
+   └── System Announcements
+
+================================================================================
+                          DATABASE RELATIONSHIPS
+================================================================================
+
+CANDIDATES (1) ──────────── (M) JOB APPLICATIONS (M) ──────────── (1) JOBS
+     │                                                                    │
+     │                                                                    │
+     ▼                                                                    ▼
+EXPERIENCE ──────────── AI MATCHING RESULTS ──────────── COMPANIES
+EDUCATION
+SKILLS
+PROJECTS
+     │
+     ▼
+CV DATA ──────────── EXAM ATTEMPTS ──────────── EXAMS
+     │
+     ▼
+INTERVIEWS ──────────── NOTIFICATIONS
+
+================================================================================
+                            TECHNOLOGY STACK
+================================================================================
+
+Frontend:
+├── HTML5, CSS3, JavaScript
+├── FontAwesome Icons
+├── Responsive Design
+└── Modern UI/UX
+
+Backend:
+├── PHP 7.4+
+├── MySQL 8.0+
+├── PDO (PHP Data Objects)
+└── Session Management
+
+File Storage:
+├── Upload Directory Structure
+├── CV Processing Files
+├── Profile Pictures
+└── Company Logos
+
+Security:
+├── Password Hashing (bcrypt)
+├── SQL Injection Prevention
+├── XSS Protection
+├── Session Security
+└── File Upload Validation
+
+================================================================================
+                           KEY DATABASE FEATURES
+================================================================================
+
+1. NORMALIZATION
+   ├── 3NF Compliance
+   ├── Proper Foreign Key Relationships
+   ├── Referential Integrity
+   └── Data Consistency
+
+2. PERFORMANCE OPTIMIZATION
+   ├── Strategic Indexing
+   ├── Query Optimization
+   ├── View Creation
+   └── Trigger Implementation
+
+3. DATA INTEGRITY
+   ├── Constraints & Validation
+   ├── Enum Types for Status Fields
+   ├── Timestamp Tracking
+   └── Audit Trails
+
+4. SCALABILITY
+   ├── Modular Table Design
+   ├── Efficient Data Types
+   ├── Partition-Ready Structure
+   └── Extensible Schema
+
+================================================================================
+                            SYSTEM STATISTICS
+================================================================================
+
+Total Tables: 22
+Total Views: 3
+Total Triggers: 3
+Total Indexes: 25+
+Total Lines of Code: 50,000+
+Total File Size: ~500KB
+
+Key Entities:
+├── Candidates: Complete profile management
+├── Companies: Business profile & job management
+├── Jobs: Comprehensive job posting system
+├── Applications: Full application lifecycle
+├── Exams: Multi-type assessment system
+├── Interviews: Complete interview management
+└── AI Matching: Intelligent candidate matching
+
+================================================================================

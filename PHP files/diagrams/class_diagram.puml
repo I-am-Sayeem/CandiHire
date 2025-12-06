@@ -1,0 +1,308 @@
+@startuml
+
+class User {
+  -userId: int
+  -email: String
+  -password: String
+  -fullName: String
+  -phoneNumber: String
+  -isActive: boolean
+  -createdAt: DateTime
+  -updatedAt: DateTime
+  +login()
+  +logout()
+  +updateProfile()
+  +validateCredentials()
+}
+
+class Candidate {
+  -candidateId: int
+  -workType: String
+  -skills: String
+  -location: String
+  -yearsOfExperience: int
+  -education: String
+  -institute: String
+  -profilePicture: String
+  -summary: String
+  -linkedin: String
+  -github: String
+  -portfolio: String
+  +searchJobs()
+  +applyForJob()
+  +takeExam()
+  +uploadCV()
+  +buildCV()
+  +scheduleInterview()
+  +viewApplications()
+}
+
+class Company {
+  -companyId: int
+  -companyName: String
+  -industry: String
+  -companySize: String
+  -companyDescription: String
+  -website: String
+  -logo: String
+  -address: String
+  -city: String
+  -state: String
+  -country: String
+  -postalCode: String
+  +postJob()
+  +reviewApplications()
+  +scheduleInterview()
+  +useAIMatching()
+  +createExam()
+  +assignExam()
+  +manageJobPosts()
+}
+
+class Administrator {
+  -adminId: int
+  -fullName: String
+  -role: String
+  -lastLogin: DateTime
+  -permissions: String[]
+  +manageUsers()
+  +manageCompanies()
+  +viewSystemStats()
+  +configureSettings()
+  +exportData()
+  +bulkOperations()
+  +viewLogs()
+  +systemMaintenance()
+  +generateReports()
+}
+
+class Job {
+  -jobId: int
+  -title: String
+  -description: String
+  -requirements: String
+  -location: String
+  -salary: String
+  -employmentType: String
+  -status: String
+  -postedDate: DateTime
+  -expiryDate: DateTime
+  -companyId: int
+  +createJob()
+  +updateJob()
+  +closeJob()
+  +getApplications()
+  +assignExam()
+}
+
+class Application {
+  -applicationId: int
+  -candidateId: int
+  -jobId: int
+  -status: String
+  -appliedDate: DateTime
+  -notes: String
+  -coverLetter: String
+  +submitApplication()
+  +updateStatus()
+  +addNotes()
+  +trackProgress()
+}
+
+class Exam {
+  -examId: int
+  -title: String
+  -description: String
+  -timeLimit: int
+  -totalQuestions: int
+  -passingScore: int
+  -isActive: boolean
+  -createdBy: int
+  -createdAt: DateTime
+  +createExam()
+  +assignToJob()
+  +generateQuestions()
+  +calculateScore()
+}
+
+class Question {
+  -questionId: int
+  -examId: int
+  -questionText: String
+  -questionType: String
+  -options: String[]
+  -correctAnswer: String
+  -points: int
+  -difficulty: String
+  +createQuestion()
+  +updateQuestion()
+  +validateAnswer()
+}
+
+class Interview {
+  -interviewId: int
+  -candidateId: int
+  -companyId: int
+  -jobId: int
+  -title: String
+  -mode: String
+  -scheduledDate: DateTime
+  -scheduledTime: Time
+  -meetingLink: String
+  -location: String
+  -status: String
+  -feedback: String
+  +scheduleInterview()
+  +sendInvitation()
+  +conductInterview()
+  +submitFeedback()
+  +reschedule()
+}
+
+class AIMatching {
+  -matchingId: int
+  -jobId: int
+  -candidateId: int
+  -compatibilityScore: float
+  -skillsMatch: float
+  -experienceMatch: float
+  -educationMatch: float
+  -locationMatch: float
+  +analyzeCandidate()
+  +calculateScore()
+  +rankCandidates()
+  +generateReport()
+}
+
+class SessionManager {
+  -sessionId: String
+  -userId: int
+  -userType: String
+  -loginTime: DateTime
+  -lastActivity: DateTime
+  -isActive: boolean
+  +createSession()
+  +validateSession()
+  +destroySession()
+  +updateActivity()
+  +checkTimeout()
+}
+
+class Database {
+  -connection: PDO
+  -host: String
+  -database: String
+  -username: String
+  -password: String
+  +connect()
+  +query()
+  +execute()
+  +transaction()
+  +disconnect()
+}
+
+class NotificationService {
+  -notificationId: int
+  -recipientId: int
+  -type: String
+  -message: String
+  -status: String
+  -sentDate: DateTime
+  +sendEmail()
+  +sendNotification()
+  +queueNotification()
+  +trackDelivery()
+}
+
+class FileManager {
+  -fileId: int
+  -fileName: String
+  -filePath: String
+  -fileType: String
+  -fileSize: int
+  -uploadedBy: int
+  -uploadDate: DateTime
+  +uploadFile()
+  +validateFile()
+  +generateThumbnail()
+  +deleteFile()
+  +scanForVirus()
+}
+
+class AdminDashboard {
+  -dashboardId: int
+  -adminId: int
+  -widgets: String[]
+  -layout: String
+  +loadDashboard()
+  +updateWidgets()
+  +refreshData()
+  +exportDashboard()
+}
+
+class SystemMonitor {
+  -monitorId: int
+  -metricName: String
+  -metricValue: float
+  -timestamp: DateTime
+  -threshold: float
+  +collectMetrics()
+  +checkThresholds()
+  +generateAlerts()
+  +logPerformance()
+}
+
+class ActivityLogger {
+  -logId: int
+  -userId: int
+  -action: String
+  -description: String
+  -ipAddress: String
+  -userAgent: String
+  -timestamp: DateTime
+  +logActivity()
+  +searchLogs()
+  +generateReport()
+  +archiveLogs()
+}
+
+' Inheritance Relationships
+User <|-- Candidate
+User <|-- Company
+User <|-- Administrator
+
+' Composition Relationships
+Job *-- Application
+Exam *-- Question
+Interview o-- Candidate
+Interview o-- Company
+AIMatching o-- Job
+AIMatching o-- Candidate
+
+' Association Relationships
+Candidate --> Application
+Company --> Job
+Company --> Interview
+Candidate --> Interview
+Candidate --> Exam
+Company --> Exam
+Administrator --> AdminDashboard
+Administrator --> SystemMonitor
+Administrator --> ActivityLogger
+
+' Dependency Relationships
+User ..> SessionManager
+User ..> Database
+Application ..> NotificationService
+Interview ..> NotificationService
+FileManager ..> Database
+AdminDashboard ..> Database
+SystemMonitor ..> Database
+ActivityLogger ..> Database
+
+' Aggregation Relationships
+AdminDashboard o-- SystemMonitor
+AdminDashboard o-- ActivityLogger
+
+@enduml
+

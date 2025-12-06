@@ -1,0 +1,64 @@
+@startuml
+left to right direction
+
+actor Candidate as c
+actor Company as co
+actor Administrator as a
+
+rectangle "CandiHire AI-Powered Recruitment Platform" {
+  
+  ' Candidate Use Cases
+  c --> (Register Account)
+  c --> (Login/Logout)
+  c --> (Create Profile)
+  c --> (Search Jobs)
+  c --> (Apply for Job)
+  c --> (Take Exam)
+  c --> (Upload CV)
+  c --> (View Exam Results)
+  c --> (Schedule Interview)
+  c --> (View Applications)
+  c --> (Build CV)
+  c --> (Check CV)
+  c --> (Participate in Interview)
+  c --> (Receive Notifications)
+  
+  ' Company Use Cases
+  co --> (Register Company)
+  co --> (Company Login)
+  co --> (Post Job)
+  co --> (View Applications)
+  co --> (Review Candidates)
+  co --> (Schedule Interview)
+  co --> (Use AI Matching)
+  co --> (View MCQ Results)
+  co --> (Manage Job Posts)
+  co --> (Create Exam)
+  co --> (Assign Exam)
+  co --> (Upload Company Logo)
+  co --> (Send Interview Invites)
+  co --> (Manage Interviews)
+  co --> (Create Company Profile)
+  
+  ' Administrator Use Cases
+  a --> (Admin Login)
+  a --> (View Dashboard)
+  a --> (Manage Users)
+  a --> (Manage Companies)
+  a --> (View System Stats)
+  a --> (Monitor Activity)
+  a --> (Configure Settings)
+  a --> (Export Data)
+  a --> (Bulk Operations)
+  a --> (View Logs)
+  a --> (Toggle User Status)
+  a --> (Delete Users)
+  a --> (System Maintenance)
+  a --> (Generate Reports)
+  a --> (Manage System Security)
+  a --> (Backup Data)
+  a --> (User Management)
+  a --> (Company Management)
+}
+
+@enduml

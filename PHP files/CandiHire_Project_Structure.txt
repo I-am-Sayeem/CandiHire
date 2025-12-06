@@ -1,0 +1,457 @@
+================================================================================
+                           CANDIHIRE PROJECT STRUCTURE
+                    Epics, Stories, and Tasks Documentation
+================================================================================
+
+🧩 Epic 1: User Management System
+
+Goal: Enable secure user registration, authentication, and profile management for both candidates and companies within CandiHire.
+
+📘 User Stories
+
+Story 1: Candidate Registration
+
+As a job seeker,
+I want to create a candidate account with my personal information,
+So that I can apply for jobs and access candidate-specific features.
+
+Tasks:
+- Design candidate registration form with validation
+- Implement candidate registration backend handler
+- Add email uniqueness validation (candidate vs company)
+- Hash and store passwords securely
+- Handle profile picture upload functionality
+- Validate work type selection (full-time, part-time, contract, etc.)
+- Display registration success/error messages
+- Test candidate registration end-to-end
+
+Story 2: Company Registration
+
+As a company representative,
+I want to create a company account with business information,
+So that I can post jobs and manage recruitment processes.
+
+Tasks:
+- Design company registration form with business details
+- Implement company registration backend handler
+- Add company logo upload functionality
+- Validate company size and industry fields
+- Handle address and contact information storage
+- Implement email uniqueness validation
+- Display registration confirmation
+- Test company registration workflow
+
+Story 3: User Authentication & Login
+
+As a registered user,
+I want to securely log in to my account,
+So that I can access my personalized dashboard and features.
+
+Tasks:
+- Create unified login interface for candidates and companies
+- Implement secure authentication backend
+- Add session management system
+- Handle password verification with bcrypt
+- Implement logout functionality
+- Add "Remember Me" functionality
+- Handle invalid credentials with proper error messages
+- Redirect users to appropriate dashboards after login
+- Test authentication security thoroughly
+
+Story 4: Profile Management
+
+As a logged-in user,
+I want to manage and update my profile information,
+So that my profile remains current and accurate.
+
+Tasks:
+- Create candidate profile management interface
+- Implement candidate profile update handler
+- Create company profile management interface
+- Implement company profile update handler
+- Add profile picture upload and management
+- Handle skills and experience updates
+- Implement profile validation
+- Add profile completeness indicators
+- Test profile management functionality
+
+🧩 Epic 2: Job Management Platform
+
+Goal: Provide comprehensive job posting, application, and tracking capabilities for companies and candidates.
+
+📘 User Stories
+
+Story 5: Job Posting Creation
+
+As a company,
+I want to create detailed job postings,
+So that I can attract qualified candidates for open positions.
+
+Tasks:
+- Design job posting creation form with rich text editor
+- Implement job posting backend handler
+- Add job categories and skill requirements
+- Handle salary range and job type specifications
+- Implement job posting validation
+- Add job posting preview functionality
+- Store job postings with proper metadata
+- Test job posting creation workflow
+
+Story 6: Job Application System
+
+As a candidate,
+I want to apply for jobs with my resume and cover letter,
+So that I can be considered for positions I'm interested in.
+
+Tasks:
+- Create job application form interface
+- Implement job application submission handler
+- Add resume/CV upload functionality
+- Handle cover letter text input
+- Implement application duplicate prevention
+- Store application data with timestamps
+- Send application confirmation emails
+- Test job application process
+
+Story 7: Application Status Tracking
+
+As both candidate and company,
+I want to track application status in real-time,
+So that I can stay informed about the recruitment progress.
+
+Tasks:
+- Create application status tracking interface
+- Implement status update backend logic
+- Add status history tracking
+- Create status change notifications
+- Implement application filtering and search
+- Add bulk status update functionality
+- Display application analytics
+- Test status tracking system
+
+Story 8: Job Feed Management
+
+As a candidate,
+I want to see personalized job recommendations,
+So that I can discover relevant opportunities easily.
+
+Tasks:
+- Implement job recommendation algorithm
+- Create personalized job feed interface
+- Add job filtering by skills, location, salary
+- Implement job search functionality
+- Add job bookmarking feature
+- Create job recommendation preferences
+- Display trending skills and jobs
+- Test job feed personalization
+
+🧩 Epic 3: Assessment & Exam System
+
+Goal: Provide comprehensive examination capabilities including manual and AI-generated assessments for candidate evaluation.
+
+📘 User Stories
+
+Story 9: Manual Exam Creation
+
+As a company,
+I want to create custom exams manually,
+So that I can assess candidates with specific questions relevant to the job.
+
+Tasks:
+- Design manual exam creation interface
+- Implement question bank management system
+- Add multiple question types (MCQ, true/false, coding, essay)
+- Create exam configuration options (duration, passing score)
+- Implement exam preview functionality
+- Add question difficulty levels and categories
+- Store exam data with proper relationships
+- Test manual exam creation workflow
+
+Story 10: Auto Exam Generation
+
+As a company,
+I want to automatically generate exams based on job requirements,
+So that I can quickly create relevant assessments without manual effort.
+
+Tasks:
+- Implement AI-powered exam generation algorithm
+- Create auto-generation interface
+- Add job requirement analysis
+- Implement question selection logic
+- Generate balanced question sets
+- Add exam customization options
+- Validate generated exam quality
+- Test auto-generation accuracy
+
+Story 11: Exam Taking Interface
+
+As a candidate,
+I want to take exams in a secure, user-friendly interface,
+So that I can complete assessments efficiently and fairly.
+
+Tasks:
+- Create secure exam taking interface
+- Implement exam timer functionality
+- Add question navigation system
+- Implement auto-save functionality
+- Add exam submission validation
+- Handle exam timeouts and interruptions
+- Create responsive exam interface
+- Test exam taking experience
+
+Story 12: Exam Results & Review
+
+As both candidate and company,
+I want to view detailed exam results and analytics,
+So that I can understand performance and make informed decisions.
+
+Tasks:
+- Create exam results display interface
+- Implement result calculation logic
+- Add detailed answer review
+- Create performance analytics dashboard
+- Implement result export functionality
+- Add result comparison features
+- Create exam review and feedback system
+- Test results accuracy and display
+
+🧩 Epic 4: AI-Powered Matching System
+
+Goal: Leverage artificial intelligence to match candidates with jobs and analyze CVs for better recruitment outcomes.
+
+📘 User Stories
+
+Story 13: AI Candidate Matching
+
+As a company,
+I want to receive AI-powered candidate recommendations,
+So that I can quickly identify the best-fit candidates for my job postings.
+
+Tasks:
+- Implement AI matching algorithm
+- Create matching results interface
+- Add skill-based matching logic
+- Implement experience and education matching
+- Add location and salary compatibility
+- Create match percentage calculations
+- Display detailed matching factors
+- Test matching algorithm accuracy
+
+Story 14: CV Analysis & Scoring
+
+As a candidate,
+I want to get my CV analyzed and scored,
+So that I can improve my resume and understand my strengths.
+
+Tasks:
+- Implement CV upload and processing system
+- Create CV analysis algorithm
+- Add grammar and format checking
+- Implement content analysis
+- Create scoring system
+- Add improvement suggestions
+- Generate CV analysis reports
+- Test CV analysis accuracy
+
+🧩 Epic 5: Interview Management System
+
+Goal: Provide comprehensive interview scheduling, management, and feedback capabilities for the recruitment process.
+
+📘 User Stories
+
+Story 15: Interview Scheduling
+
+As a company,
+I want to schedule interviews with candidates,
+So that I can conduct structured interviews for job positions.
+
+Tasks:
+- Create interview scheduling interface
+- Implement multiple interview modes (virtual, onsite, phone)
+- Add calendar integration
+- Handle interviewer assignment
+- Implement interview reminder system
+- Add interview rescheduling functionality
+- Create interview confirmation system
+- Test scheduling workflow
+
+Story 16: Interview Management
+
+As both candidate and company,
+I want to manage the complete interview lifecycle,
+So that interviews are conducted efficiently with proper tracking.
+
+Tasks:
+- Create interview management dashboard
+- Implement interview status tracking
+- Add interview feedback collection
+- Create interview rating system
+- Implement interview history
+- Add interview analytics
+- Create interview report generation
+- Test interview management system
+
+🧩 Epic 6: Notification System
+
+Goal: Keep users informed about important events and updates through real-time notifications and email communications.
+
+📘 User Stories
+
+Story 17: Email Notification System
+
+As a user,
+I want to receive email notifications for important events,
+So that I stay informed about application updates and system activities.
+
+Tasks:
+- Implement email service integration
+- Create email templates for different notification types
+- Add email queue system
+- Implement email delivery tracking
+- Create notification preferences
+- Add email unsubscribe functionality
+- Test email delivery reliability
+- Monitor email performance
+
+Story 18: Real-time Notifications
+
+As a user,
+I want to receive real-time in-app notifications,
+So that I can stay updated on important events without checking email.
+
+Tasks:
+- Implement real-time notification backend
+- Create notification display interface
+- Add notification categorization
+- Implement notification preferences
+- Add notification history
+- Create notification analytics
+- Test real-time notification delivery
+- Optimize notification performance
+
+🧩 Epic 7: Database & Infrastructure
+
+Goal: Establish robust database architecture, system infrastructure, and deployment capabilities for the CandiHire platform.
+
+📘 User Stories
+
+Story 19: Database Architecture
+
+As a system administrator,
+I want a well-designed database schema,
+So that the system can handle data efficiently and securely.
+
+Tasks:
+- Design comprehensive database schema
+- Create all database tables with proper relationships
+- Implement database indexes for performance
+- Add database constraints and validation
+- Create database views for common queries
+- Implement database triggers
+- Set up database backup procedures
+- Test database performance and integrity
+
+Story 20: System Security & Testing
+
+As a system administrator,
+I want comprehensive security and testing measures,
+So that the system is secure, reliable, and performs well.
+
+Tasks:
+- Conduct security audit and vulnerability assessment
+- Implement security best practices
+- Add input validation and sanitization
+- Create comprehensive test suites
+- Implement performance monitoring
+- Add error logging and monitoring
+- Create disaster recovery procedures
+- Test system under load conditions
+
+Story 21: Deployment & Documentation
+
+As a development team,
+I want proper deployment procedures and documentation,
+So that the system can be deployed reliably and maintained effectively.
+
+Tasks:
+- Set up production deployment environment
+- Create deployment scripts and procedures
+- Implement CI/CD pipeline
+- Create system documentation
+- Add API documentation
+- Create user manuals
+- Implement monitoring and alerting
+- Train support team on system operation
+
+================================================================================
+                              ADDITIONAL FEATURES
+================================================================================
+
+📋 Additional Components Identified:
+
+1. CV Builder System
+   - Resume creation and editing interface
+   - Template management
+   - Export functionality
+
+2. Job Seeking Posts
+   - Candidate job seeking posts
+   - Company job opportunity posts
+   - Feed separation and management
+
+3. Trending Skills API
+   - Skills trending analysis
+   - Market insights
+   - Skills recommendation
+
+4. File Management System
+   - Upload directory structure
+   - File validation and security
+   - File serving and access control
+
+5. Session Management
+   - User session tracking
+   - Session security
+   - Multi-device support
+
+6. Email Logging System
+   - Email delivery tracking
+   - Debug email functionality
+   - Email performance monitoring
+
+================================================================================
+                              TECHNICAL SPECIFICATIONS
+================================================================================
+
+Technology Stack:
+- Frontend: HTML5, CSS3, JavaScript, FontAwesome
+- Backend: PHP 7.4+, MySQL 8.0+
+- Security: Password hashing (bcrypt), SQL injection prevention
+- File Handling: PDF processing, image uploads
+- Email: PHPMailer integration
+- Database: PDO, MySQL with proper indexing
+
+Key Files Structure:
+- Authentication: Login&Signup.php, session_manager.php
+- Dashboards: CandidateDashboard.php, CompanyDashboard.php
+- Job Management: JobPost.php, job_posting_handler.php
+- Assessment: CreateExam.php, attendexam.php, ExamReview.php
+- AI Features: AIMatching.php, CvChecker.php
+- Interview: Interview.php, interview_schedule.php
+- Notifications: notification_system.js, email handlers
+
+================================================================================
+                              PROJECT TIMELINE
+================================================================================
+
+Sprint 1 (Aug 1-15): User Management & Database Setup
+Sprint 2 (Aug 16-31): Job Management Platform
+Sprint 3 (Sep 1-25): Assessment System & Application Tracking
+Sprint 4 (Sep 26-Oct 10): AI Features & Interview Management
+Sprint 5 (Oct 11-13): Notifications, Testing & Deployment
+
+Total Duration: 10.5 weeks (August 1 - October 13, 2025)
+Total Story Points: 150+
+Total Tasks: 50+
+
+================================================================================
