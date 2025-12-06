@@ -13,7 +13,7 @@ class InterviewController extends Controller
         $companyId = session('user_id');
         $interviews = Interview::where('CompanyID', $companyId)->latest()->get();
 
-        return view('company.interviews.index', compact('interviews'));
+        return view('interview.interview', compact('interviews'));
     }
 
     // ---------------- SCHEDULE AN INTERVIEW ---------------- //

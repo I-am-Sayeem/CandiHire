@@ -12,7 +12,7 @@ class AuthController extends Controller
 {
     // ----- SHOW LOGIN PAGE -----
     public function showLogin() {
-        return view('auth.login');
+        return view('auth.login_signup');
     }
 
     // ----- LOGIN HANDLER -----
@@ -55,47 +55,54 @@ class AuthController extends Controller
 
     // ----- CANDIDATE REGISTER -----
     public function showCandidateRegister() {
-        return view('auth.candidate_register');
+        return view('candidate.register');
     }
 
     public function registerCandidate(Request $request) {
 
         $request->validate([
             'FullName' => 'required',
-            'Email' => 'required|email',
-            'Password' => 'required|min:6'
+            'Email' => 'required|email|unique:candidates,Email',
+            'Password' => 'required|min:6|confirmed'
         ]);
 
         Candidate::create([
             'FullName' => $request->FullName,
             'Email' => $request->Email,
             'Password' => Hash::make($request->Password),
+            'PhoneNumber' => $request->PhoneNumber ?? null,
+            'WorkType' => $request->WorkType ?? null,
+            'Skills' => $request->Skills ?? null,
             'IsActive' => 1
         ]);
 
-        return redirect('/login')->with('success', 'Registration successful!');
+        return redirect('/login')->with('success', 'Registration successful! Please login.');
     }
 
     // ----- COMPANY REGISTER -----
     public function showCompanyRegister() {
-        return view('auth.company_register');
+        return view('auth.login_signup');
     }
 
     public function registerCompany(Request $request) {
 
         $request->validate([
             'CompanyName' => 'required',
-            'Email' => 'required|email',
-            'Password' => 'required|min:6'
+            'Email' => 'required|email|unique:companies,Email',
+            'Password' => 'required|min:6|confirmed'
         ]);
 
         Company::create([
             'CompanyName' => $request->CompanyName,
             'Email' => $request->Email,
             'Password' => Hash::make($request->Password),
+            'PhoneNumber' => $request->PhoneNumber ?? null,
+            'Industry' => $request->Industry ?? null,
+            'CompanySize' => $request->CompanySize ?? null,
+            'Description' => $request->Description ?? null,
             'IsActive' => 1
         ]);
 
-        return redirect('/login')->with('success', 'Company registered!');
+        return redirect('/login')->with('success', 'Company registered! Please login.');
     }
 }

@@ -21,7 +21,7 @@ class ExamController extends Controller
         $companyId = session('user_id');
         $exams = Exam::where('CompanyID', $companyId)->latest()->get();
 
-        return view('company.exams.index', compact('exams'));
+        return view('exam.review', compact('exams'));
     }
 
     // --------------------------------------------------
@@ -29,7 +29,7 @@ class ExamController extends Controller
     // --------------------------------------------------
     public function create()
     {
-        return view('company.exams.create');
+        return view('exam.create');
     }
 
     // --------------------------------------------------
@@ -95,7 +95,7 @@ class ExamController extends Controller
     public function jobExamAssignments($jobId)
     {
         $schedules = ExamSchedule::where('JobID', $jobId)->latest()->get();
-        return view('company.exams.assignments', compact('schedules'));
+        return view('exam.bulk_assignment', compact('schedules'));
     }
 
     // --------------------------------------------------
@@ -138,7 +138,7 @@ class ExamController extends Controller
             ['ExamID' => $exam->ExamID, 'StartTime' => now(), 'Status' => 'In Progress']
         );
 
-        return view('exam.take', compact('exam', 'questions', 'attempt'));
+        return view('exam.attend', compact('exam', 'questions', 'attempt'));
     }
 
     // --------------------------------------------------

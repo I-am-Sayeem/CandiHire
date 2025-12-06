@@ -11,7 +11,7 @@ class ComplaintController extends Controller
     public function index()
     {
         $complaints = Complaint::latest()->get();
-        return view('admin.complaints.index', compact('complaints'));
+        return view('admin.complaints', compact('complaints'));
     }
 
     // ---------------- USER SUBMITS COMPLAINT ---------------- //

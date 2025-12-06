@@ -14,7 +14,7 @@ class ReportController extends Controller
     public function index()
     {
         $reports = Report::latest()->get();
-        return view('admin.reports.index', compact('reports'));
+        return view('admin.reports', compact('reports'));
     }
 
     // Example: Generate simple system stats

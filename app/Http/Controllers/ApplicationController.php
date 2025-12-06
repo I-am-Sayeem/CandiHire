@@ -31,7 +31,7 @@ class ApplicationController extends Controller
     {
         $apps = JobApplication::where('CandidateID', session('user_id'))->latest()->get();
 
-        return view('applications.candidate_status', compact('apps'));
+        return view('candidate.application_status', compact('apps'));
     }
 
     // ---------------- COMPANY VIEW APPLICANTS ---------------- //
@@ -41,6 +41,6 @@ class ApplicationController extends Controller
 
         $apps = JobApplication::where('JobID', $jobId)->latest()->get();
 
-        return view('company.jobs.applicants', compact('job', 'apps'));
+        return view('company.applications', compact('job', 'apps'));
     }
 }

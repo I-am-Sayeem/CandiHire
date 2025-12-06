@@ -22,14 +22,14 @@ class MessagingController extends Controller
               ->where('ParticipantTwoType', $userType);
         })->get();
 
-        return view('messages.index', compact('conversations'));
+        return view('messaging.messaging', compact('conversations'));
     }
 
     // ---------------- OPEN A CHAT ---------------- //
     public function open($conversationId)
     {
         $conversation = Conversation::with('messages')->findOrFail($conversationId);
-        return view('messages.chat', compact('conversation'));
+        return view('messaging.messaging', compact('conversation'));
     }
 
     // ---------------- SEND MESSAGE ---------------- //

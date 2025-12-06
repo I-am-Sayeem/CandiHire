@@ -12,14 +12,14 @@ class JobController extends Controller
     public function index()
     {
         $jobs = JobPosting::latest()->paginate(10);
-        return view('jobs.index', compact('jobs'));
+        return view('candidate.dashboard', compact('jobs'));
     }
 
     // ---------------- JOB DETAILS ---------------- //
     public function view($id)
     {
         $job = JobPosting::findOrFail($id);
-        return view('jobs.view', compact('job'));
+        return view('company.job_post', compact('job'));
     }
 
     // ---------------- COMPANY JOB LIST ---------------- //
@@ -28,13 +28,13 @@ class JobController extends Controller
         $companyId = session('user_id');
         $jobs = JobPosting::where('CompanyID', $companyId)->latest()->get();
 
-        return view('company.jobs.index', compact('jobs'));
+        return view('company.job_post', compact('jobs'));
     }
 
     // ---------------- CREATE JOB FORM ---------------- //
     public function create()
     {
-        return view('company.jobs.create');
+        return view('company.job_post');
     }
 
     // ---------------- STORE NEW JOB ---------------- //
@@ -65,7 +65,7 @@ class JobController extends Controller
     public function edit($id)
     {
         $job = JobPosting::findOrFail($id);
-        return view('company.jobs.edit', compact('job'));
+        return view('company.job_post', compact('job'));
     }
 
     // ---------------- UPDATE JOB ---------------- //
