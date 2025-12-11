@@ -47,4 +47,45 @@ class CompanyController extends Controller
     {
         return view('company.ai_matching');
     }
+
+    /**
+     * API: Get company profile as JSON.
+     */
+    public function apiShow($id)
+    {
+        try {
+            $company = Company::find($id);
+            
+            if (!$company) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Company not found'
+                ], 404);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'company' => [
+                    'CompanyID' => $company->CompanyID,
+                    'CompanyName' => $company->CompanyName,
+                    'Industry' => $company->Industry,
+                    'CompanySize' => $company->CompanySize,
+                    'Email' => $company->Email,
+                    'PhoneNumber' => $company->PhoneNumber,
+                    'CompanyDescription' => $company->CompanyDescription,
+                    'Website' => $company->Website,
+                    'Logo' => $company->Logo,
+                    'Address' => $company->Address,
+                    'City' => $company->City,
+                    'State' => $company->State,
+                    'Country' => $company->Country
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading company details'
+            ], 500);
+        }
+    }
 }

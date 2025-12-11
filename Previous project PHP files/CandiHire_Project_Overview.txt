@@ -1,0 +1,485 @@
+================================================================================
+                           CANDIHIRE PROJECT OVERVIEW
+                    Professional Recruitment Management System
+================================================================================
+
+1. PROJECT OVERVIEW
+===================
+
+CandiHire is a comprehensive web-based recruitment management system designed to 
+streamline the hiring process for both job seekers and employers. The platform 
+integrates modern web technologies with AI-powered features to create an efficient, 
+user-friendly environment for job matching, application management, and candidate 
+evaluation.
+
+The system serves as a centralized platform where:
+- Candidates can create profiles, apply for jobs, take assessments, and track applications
+- Companies can post jobs, review applications, conduct interviews, and manage recruitment
+- AI algorithms provide intelligent candidate matching and CV analysis
+- Comprehensive assessment tools enable skill evaluation and testing
+
+Key Features:
+- Dual user interface (Candidate & Company dashboards)
+- AI-powered candidate matching system
+- Comprehensive exam and assessment platform
+- Interview scheduling and management
+- Real-time notifications and status tracking
+- CV builder and analysis tools
+- Secure authentication and session management
+
+2. SYSTEM OBJECTIVES
+====================
+
+Primary Objectives:
+- Streamline the recruitment process for both candidates and companies
+- Reduce time-to-hire through intelligent candidate matching
+- Provide comprehensive assessment tools for skill evaluation
+- Create a centralized platform for all recruitment activities
+- Ensure data security and user privacy
+- Provide real-time updates and notifications
+
+Secondary Objectives:
+- Improve candidate experience through user-friendly interfaces
+- Enable data-driven hiring decisions through analytics
+- Support multiple interview formats (virtual, onsite, phone)
+- Facilitate seamless communication between parties
+- Provide comprehensive reporting and tracking capabilities
+
+3. DATA FLOW DIAGRAM
+====================
+
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   CANDIDATE     │    │   COMPANY       │    │   ADMIN         │
+│   INTERFACE     │    │   INTERFACE     │    │   INTERFACE     │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
+          │                      │                      │
+          ▼                      ▼                      ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    APPLICATION LAYER                           │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
+│  │   Session   │  │  Auth &     │  │   File      │            │
+│  │  Manager    │  │  Security   │  │  Upload     │            │
+│  └─────────────┘  └─────────────┘  └─────────────┘            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
+│  │   Job       │  │   Exam      │  │   AI        │            │
+│  │ Management  │  │   System    │  │ Matching    │            │
+│  └─────────────┘  └─────────────┘  └─────────────┘            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
+│  │ Interview   │  │ Notification│  │   CV        │            │
+│  │ Management  │  │   System    │  │ Processing  │            │
+│  └─────────────┘  └─────────────┘  └─────────────┘            │
+└─────────────────────────────────────────────────────────────────┘
+          │                      │                      │
+          ▼                      ▼                      ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      DATABASE LAYER                            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
+│  │   User      │  │   Job       │  │ Assessment  │            │
+│  │   Tables    │  │   Tables    │  │   Tables    │            │
+│  └─────────────┘  └─────────────┘  └─────────────┘            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
+│  │ Interview   │  │   AI        │  │  System     │            │
+│  │   Tables    │  │ Matching    │  │   Tables    │            │
+│  └─────────────┘  └─────────────┘  └─────────────┘            │
+└─────────────────────────────────────────────────────────────────┘
+
+Data Flow Process:
+1. User Registration/Login → Session Management → Database Authentication
+2. Profile Creation → Data Validation → Database Storage
+3. Job Posting/Application → Business Logic → Database Update
+4. AI Matching → Algorithm Processing → Results Storage
+5. Exam Taking → Answer Processing → Score Calculation
+6. Interview Scheduling → Calendar Integration → Notification Dispatch
+
+4. ENTITY RELATIONSHIP (ER) DIAGRAM
+===================================
+
+                    ┌─────────────────┐
+                    │   CANDIDATES    │
+                    │  (1)            │
+                    └─────────┬───────┘
+                              │
+                              │ 1:M
+                              ▼
+                    ┌─────────────────┐
+                    │ APPLICATIONS    │
+                    │      (M)        │
+                    └─────────┬───────┘
+                              │
+                              │ M:1
+                              ▼
+                    ┌─────────────────┐
+                    │     JOBS        │
+                    │  (1)            │
+                    └─────────┬───────┘
+                              │
+                              │ 1:M
+                              ▼
+                    ┌─────────────────┐
+                    │   COMPANIES     │
+                    │  (1)            │
+                    └─────────────────┘
+
+Additional Relationships:
+- CANDIDATES (1) ──── (M) EXPERIENCE
+- CANDIDATES (1) ──── (M) EDUCATION  
+- CANDIDATES (1) ──── (M) SKILLS
+- CANDIDATES (1) ──── (M) PROJECTS
+- CANDIDATES (1) ──── (M) CV_DATA
+- CANDIDATES (1) ──── (M) EXAM_ATTEMPTS
+- CANDIDATES (1) ──── (M) INTERVIEWS
+- JOBS (1) ──── (M) EXAM_SCHEDULES
+- COMPANIES (1) ──── (M) EXAMS
+- COMPANIES (1) ──── (M) INTERVIEWS
+
+5. SQL DATABASE DESIGN
+======================
+
+Database: candihire
+Character Set: utf8mb4
+Collation: utf8mb4_unicode_ci
+
+Core Tables (22 total):
+
+USER MANAGEMENT TABLES:
+- candidate_login_info (Primary candidate data)
+- Company_login_info (Primary company data)
+- candidate_cv_data (CV information)
+- candidate_experience (Work experience)
+- candidate_education (Educational background)
+- candidate_skills (Technical and soft skills)
+- candidate_projects (Project portfolio)
+
+JOB MANAGEMENT TABLES:
+- job_postings (Job advertisements)
+- job_applications (Application records)
+- application_status_history (Status tracking)
+
+ASSESSMENT TABLES:
+- exams (Exam definitions)
+- exam_questions (Question bank)
+- exam_question_options (Answer choices)
+- exam_schedules (Exam scheduling)
+- exam_attempts (Attempt records)
+- exam_answers (Answer submissions)
+
+INTERVIEW TABLES:
+- interviews (Interview records)
+
+AI & ANALYTICS TABLES:
+- ai_matching_results (Matching scores)
+- cv_checker_results (CV analysis)
+
+SYSTEM TABLES:
+- user_sessions (Session management)
+- notifications (System notifications)
+- system_settings (Configuration)
+
+Key Features:
+- 25+ strategic indexes for performance
+- 3 database triggers for automation
+- 3 views for common queries
+- Foreign key constraints for data integrity
+- Enum types for status fields
+- Timestamp tracking for audit trails
+
+6. USE CASE DIAGRAM
+===================
+
+                    ┌─────────────────┐
+                    │   CANDIDATE     │
+                    └─────────┬───────┘
+                              │
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  Register   │    │  Create     │    │  Apply for  │
+│  Account    │    │  Profile    │    │    Jobs     │
+└─────────────┘    └─────────────┘    └─────────────┘
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  Take Exams │    │  Build CV   │    │  Track      │
+│             │    │             │    │Applications│
+└─────────────┘    └─────────────┘    └─────────────┘
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  Attend     │    │  Check CV   │    │  Receive    │
+│Interviews   │    │   Score     │    │Notifications│
+└─────────────┘    └─────────────┘    └─────────────┘
+
+                    ┌─────────────────┐
+                    │    COMPANY      │
+                    └─────────┬───────┘
+                              │
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  Register   │    │  Post Jobs  │    │  Review     │
+│  Account    │    │             │    │Applications│
+└─────────────┘    └─────────────┘    └─────────────┘
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  Create     │    │  Schedule   │    │  Use AI     │
+│  Exams      │    │Interviews   │    │ Matching    │
+└─────────────┘    └─────────────┘    └─────────────┘
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  Manage     │    │  Evaluate   │    │  Send       │
+│Candidates   │    │Candidates   │    │Notifications│
+└─────────────┘    └─────────────┘    └─────────────┘
+
+7. SYSTEM MODULES DESCRIPTION
+=============================
+
+7.1 USER MANAGEMENT MODULE
+--------------------------
+Purpose: Handle user registration, authentication, and profile management
+Components:
+- Login&Signup.php (Unified login/signup interface)
+- session_manager.php (Session handling)
+- candidate_reg_handler.php (Candidate registration)
+- company_reg_handler.php (Company registration)
+- candidate_profile_handler.php (Profile updates)
+- company_profile_handler.php (Company profile management)
+
+Features:
+- Secure password hashing (bcrypt)
+- Email uniqueness validation
+- Profile picture upload
+- Session security and timeout
+- Multi-device session support
+
+7.2 JOB MANAGEMENT MODULE
+-------------------------
+Purpose: Manage job postings, applications, and job seeking posts
+Components:
+- JobPost.php (Job posting interface)
+- job_posting_handler.php (Job creation logic)
+- job_application_handler.php (Application processing)
+- applicationstatus.php (Status tracking)
+- job_seeking_handler.php (Job seeking posts)
+
+Features:
+- Rich text job descriptions
+- Skill-based job categorization
+- Application status tracking
+- Duplicate application prevention
+- Job feed personalization
+
+7.3 ASSESSMENT MODULE
+---------------------
+Purpose: Provide comprehensive examination and testing capabilities
+Components:
+- CreateExam.php (Manual exam creation)
+- AutoExamCreation.php (AI-generated exams)
+- attendexam.php (Exam taking interface)
+- ExamReview.php (Results and review)
+- exam_assignment_handler.php (Exam scheduling)
+
+Features:
+- Multiple question types (MCQ, coding, essay)
+- Auto-generated exams based on job requirements
+- Secure exam environment
+- Real-time timer and auto-save
+- Detailed performance analytics
+
+7.4 AI MATCHING MODULE
+----------------------
+Purpose: Intelligent candidate-job matching and CV analysis
+Components:
+- AIMatching.php (Matching interface)
+- CvChecker.php (CV analysis)
+- cv_processing_handler.php (CV processing)
+
+Features:
+- Skill-based matching algorithm
+- Experience and education matching
+- Location and salary compatibility
+- CV scoring and analysis
+- Grammar and format checking
+- Improvement suggestions
+
+7.5 INTERVIEW MANAGEMENT MODULE
+-------------------------------
+Purpose: Schedule and manage interview processes
+Components:
+- Interview.php (Interview interface)
+- interview_schedule_handler.php (Scheduling logic)
+- interview_email_handler.php (Email notifications)
+
+Features:
+- Multiple interview modes (virtual, onsite, phone)
+- Calendar integration
+- Interviewer assignment
+- Reminder system
+- Feedback collection
+- Rating system
+
+7.6 NOTIFICATION MODULE
+-----------------------
+Purpose: Real-time notifications and communication
+Components:
+- notification_system.js (Frontend notifications)
+- notification_helper.php (Backend processing)
+- Various email handlers
+
+Features:
+- Real-time in-app notifications
+- Email alerts
+- Application status updates
+- Interview reminders
+- System announcements
+
+7.7 CV PROCESSING MODULE
+------------------------
+Purpose: CV building, analysis, and management
+Components:
+- CvBuilder.php (CV creation interface)
+- CvChecker.php (CV analysis)
+- cv_processing_handler.php (Processing logic)
+
+Features:
+- Template-based CV creation
+- PDF export functionality
+- Content analysis
+- Skills extraction
+- Format validation
+
+8. SAMPLE SQL QUERIES
+=====================
+
+8.1 User Authentication Query
+-----------------------------
+```sql
+SELECT CandidateID, FullName, Email, Password, IsActive 
+FROM candidate_login_info 
+WHERE Email = ? AND IsActive = 1;
+```
+
+8.2 Job Search Query
+--------------------
+```sql
+SELECT jp.JobID, jp.JobTitle, jp.Location, jp.JobType, 
+       jp.SalaryMin, jp.SalaryMax, c.CompanyName, c.Logo
+FROM job_postings jp
+JOIN Company_login_info c ON jp.CompanyID = c.CompanyID
+WHERE jp.Status = 'active' 
+  AND (jp.JobTitle LIKE ? OR jp.Skills LIKE ?)
+  AND jp.Location LIKE ?
+ORDER BY jp.PostedDate DESC;
+```
+
+8.3 Application Status Query
+----------------------------
+```sql
+SELECT ja.ApplicationID, ja.Status, ja.ApplicationDate,
+       jp.JobTitle, c.CompanyName, c.Logo
+FROM job_applications ja
+JOIN job_postings jp ON ja.JobID = jp.JobID
+JOIN Company_login_info c ON jp.CompanyID = c.CompanyID
+WHERE ja.CandidateID = ?
+ORDER BY ja.ApplicationDate DESC;
+```
+
+8.4 AI Matching Query
+---------------------
+```sql
+SELECT c.CandidateID, c.FullName, c.Skills, c.YearsOfExperience,
+       (CASE 
+         WHEN FIND_IN_SET('PHP', c.Skills) > 0 THEN 20 ELSE 0 END +
+        CASE 
+         WHEN FIND_IN_SET('MySQL', c.Skills) > 0 THEN 20 ELSE 0 END +
+        CASE 
+         WHEN c.YearsOfExperience >= 3 THEN 30 ELSE 0 END +
+        CASE 
+         WHEN c.Location LIKE '%Remote%' THEN 30 ELSE 0 END
+       ) AS MatchScore
+FROM candidate_login_info c
+WHERE c.IsActive = 1
+  AND (FIND_IN_SET('PHP', c.Skills) > 0 OR FIND_IN_SET('MySQL', c.Skills) > 0)
+ORDER BY MatchScore DESC;
+```
+
+8.5 Exam Results Query
+----------------------
+```sql
+SELECT ea.AttemptID, ea.Score, ea.TotalQuestions, ea.CorrectAnswers,
+       e.ExamTitle, es.ScheduledDate, es.ScheduledTime
+FROM exam_attempts ea
+JOIN exams e ON ea.ExamID = e.ExamID
+JOIN exam_schedules es ON ea.ScheduleID = es.ScheduleID
+WHERE ea.CandidateID = ? AND ea.Status = 'completed'
+ORDER BY ea.StartTime DESC;
+```
+
+8.6 Interview Schedule Query
+---------------------------
+```sql
+SELECT i.InterviewID, i.InterviewTitle, i.InterviewType, i.InterviewMode,
+       i.ScheduledDate, i.ScheduledTime, i.Location, i.Platform,
+       jp.JobTitle, c.CompanyName
+FROM interviews i
+LEFT JOIN job_postings jp ON i.JobID = jp.JobID
+JOIN Company_login_info c ON i.CompanyID = c.CompanyID
+WHERE i.CandidateID = ? AND i.Status = 'scheduled'
+ORDER BY i.ScheduledDate, i.ScheduledTime;
+```
+
+8.7 Dashboard Statistics Query
+-----------------------------
+```sql
+SELECT 
+    (SELECT COUNT(*) FROM job_applications WHERE CandidateID = ?) as TotalApplications,
+    (SELECT COUNT(*) FROM interviews WHERE CandidateID = ?) as TotalInterviews,
+    (SELECT COUNT(*) FROM exam_attempts WHERE CandidateID = ?) as TotalExams,
+    (SELECT COUNT(*) FROM job_applications WHERE CandidateID = ? AND Status = 'interview-scheduled') as PendingInterviews;
+```
+
+9. CONCLUSION
+=============
+
+CandiHire represents a comprehensive solution to modern recruitment challenges, 
+combining traditional job board functionality with advanced AI-powered features. 
+The system successfully addresses the needs of both job seekers and employers 
+through its dual-interface design and intelligent matching capabilities.
+
+Key Achievements:
+- Complete recruitment lifecycle management
+- AI-powered candidate matching and CV analysis
+- Comprehensive assessment and examination system
+- Real-time communication and notification system
+- Secure and scalable database architecture
+- User-friendly interfaces for all stakeholders
+
+Technical Strengths:
+- Modern web technologies (PHP 7.4+, MySQL 8.0+)
+- Secure authentication and session management
+- Optimized database design with proper indexing
+- Responsive and accessible user interfaces
+- Comprehensive error handling and logging
+
+Future Enhancements:
+- Mobile application development
+- Advanced analytics and reporting
+- Integration with external job boards
+- Machine learning improvements for matching
+- Video interview capabilities
+- Advanced CV parsing and analysis
+
+The CandiHire system demonstrates the successful integration of modern web 
+technologies with business requirements to create a robust, scalable, and 
+user-friendly recruitment management platform. The comprehensive feature set 
+and attention to user experience make it a valuable tool for streamlining 
+the hiring process in today's competitive job market.
+
+================================================================================
+                              END OF DOCUMENT
+================================================================================

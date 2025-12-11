@@ -15,6 +15,81 @@ class JobController extends Controller
         return view('candidate.dashboard', compact('jobs'));
     }
 
+    // ---------------- API: GET JOB POSTS (JSON) ---------------- //
+    public function apiIndex(Request $request)
+    {
+        try {
+            $limit = $request->input('limit', 10);
+            $offset = $request->input('offset', 0);
+            $search = $request->input('search', '');
+            
+            $query = JobPosting::with('company')
+                ->where('Status', 'Active')
+                ->orderBy('created_at', 'desc');
+            
+            // Search filter
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('JobTitle', 'like', "%{$search}%")
+                      ->orWhere('JobDescription', 'like', "%{$search}%")
+                      ->orWhere('Skills', 'like', "%{$search}%")
+                      ->orWhere('Location', 'like', "%{$search}%");
+                });
+            }
+            
+            // Additional filters
+            if ($request->input('company')) {
+                $query->whereHas('company', function($q) use ($request) {
+                    $q->where('CompanyName', 'like', "%{$request->input('company')}%");
+                });
+            }
+            if ($request->input('location')) {
+                $query->where('Location', 'like', "%{$request->input('location')}%");
+            }
+            if ($request->input('jobType')) {
+                $query->where('JobType', $request->input('jobType'));
+            }
+            if ($request->input('skills')) {
+                $query->where('Skills', 'like', "%{$request->input('skills')}%");
+            }
+            
+            $jobs = $query->skip($offset)->take($limit)->get();
+            
+            // Format the response to match what the frontend expects
+            $posts = $jobs->map(function($job) {
+                return [
+                    'PostID' => $job->JobID,
+                    'JobID' => $job->JobID,
+                    'CompanyID' => $job->CompanyID,
+                    'CompanyName' => $job->company ? $job->company->CompanyName : 'Unknown Company',
+                    'CompanyLogo' => $job->company ? $job->company->Logo : null,
+                    'JobTitle' => $job->JobTitle,
+                    'JobDescription' => $job->JobDescription,
+                    'Requirements' => $job->Requirements,
+                    'Skills' => $job->Skills,
+                    'Location' => $job->Location,
+                    'JobType' => $job->JobType,
+                    'SalaryMin' => $job->SalaryMin,
+                    'SalaryMax' => $job->SalaryMax,
+                    'ExperienceLevel' => $job->ExperienceLevel,
+                    'PostedDate' => $job->created_at ? $job->created_at->diffForHumans() : 'Recently',
+                    'Status' => $job->Status
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'posts' => $posts,
+                'total' => $query->count()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading posts: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     // ---------------- JOB DETAILS ---------------- //
     public function view($id)
     {

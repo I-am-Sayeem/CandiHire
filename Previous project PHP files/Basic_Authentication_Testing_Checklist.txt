@@ -1,0 +1,384 @@
+================================================================================
+                    CANDIHIRE BASIC AUTHENTICATION TESTING CHECKLIST
+================================================================================
+
+PROJECT: CandiHire - AI-Powered Recruitment Platform
+TESTING SCOPE: Basic Authentication Functions (Login & Account Creation)
+TESTING APPROACH: Manual Testing with Focus on Core User Functions
+
+================================================================================
+                            PRE-TESTING SETUP
+================================================================================
+
+ENVIRONMENT VERIFICATION:
+□ Verify database connection is working
+□ Check that all authentication tables exist:
+  - candidate_login_info
+  - Company_login_info  
+  - admin_users (if applicable)
+□ Ensure session management is properly configured
+□ Verify error logging is enabled
+□ Test basic PHP functionality
+
+================================================================================
+                        CANDIDATE AUTHENTICATION TESTING
+================================================================================
+
+CANDIDATE REGISTRATION TESTING:
+□ Test registration with all valid required fields:
+  - Full Name: "John Doe"
+  - Email: "john.doe@example.com"
+  - Phone Number: "1234567890"
+  - Work Type: "full-time" (test all options: part-time, contract, freelance, internship, fresher)
+  - Password: "password123" (8+ characters)
+  - Confirm Password: "password123"
+  - Skills: "PHP, JavaScript, MySQL"
+
+□ Test registration with missing required fields:
+  - Missing Full Name
+  - Missing Email
+  - Missing Phone Number
+  - Missing Work Type
+  - Missing Password
+  - Missing Confirm Password
+
+□ Test email validation:
+  - Invalid email format: "invalid-email"
+  - Invalid email format: "test@"
+  - Invalid email format: "@example.com"
+  - Valid email: "test@example.com"
+
+□ Test password validation:
+  - Password too short: "1234567" (less than 8 characters)
+  - Password mismatch: password="test123", confirm="test456"
+  - Valid password: "password123"
+
+□ Test work type validation:
+  - Valid: "full-time", "part-time", "contract", "freelance", "internship", "fresher"
+  - Invalid: "invalid-type"
+
+□ Test duplicate email prevention:
+  - Try registering with existing candidate email
+  - Try registering with existing company email
+  - Verify appropriate error messages
+
+□ Test successful registration:
+  - Verify success message: "Account created successfully!"
+  - Verify candidate ID is returned
+  - Check database entry is created correctly
+
+CANDIDATE LOGIN TESTING:
+□ Test login with valid credentials:
+  - Use registered email and password
+  - Verify success message: "Welcome back, [Name]! Login successful."
+  - Verify candidate ID and full name returned
+  - Check session is set correctly
+
+□ Test login with invalid credentials:
+  - Wrong email, correct password
+  - Correct email, wrong password
+  - Non-existent email
+  - Empty email field
+  - Empty password field
+
+□ Test email format validation:
+  - Invalid email format in login
+  - Valid email format
+
+□ Test session management:
+  - Verify user stays logged in after page refresh
+  - Test logout functionality
+  - Verify session data is properly stored
+
+================================================================================
+                        COMPANY AUTHENTICATION TESTING
+================================================================================
+
+COMPANY REGISTRATION TESTING:
+□ Test registration with all valid required fields:
+  - Company Name: "Tech Solutions Inc"
+  - Industry: "Technology"
+  - Company Size: "51-200"
+  - Email: "hr@techsolutions.com"
+  - Phone Number: "9876543210"
+  - Company Description: "Leading tech company"
+  - Password: "company123"
+  - Confirm Password: "company123"
+
+□ Test registration with missing required fields:
+  - Missing Company Name
+  - Missing Industry
+  - Missing Company Size
+  - Missing Email
+  - Missing Phone Number
+  - Missing Company Description
+  - Missing Password
+  - Missing Confirm Password
+
+□ Test email validation:
+  - Invalid email format: "invalid-email"
+  - Valid email: "company@example.com"
+
+□ Test password validation:
+  - Password too short: "1234567"
+  - Password mismatch: password="test123", confirm="test456"
+  - Valid password: "company123"
+
+□ Test company size validation:
+  - Valid sizes: "1-10", "11-50", "51-200", "201-500", "501-1000", "1000+"
+  - Custom size (should be allowed)
+
+□ Test duplicate email prevention:
+  - Try registering with existing company email
+  - Try registering with existing candidate email
+  - Verify appropriate error messages
+
+□ Test successful registration:
+  - Verify success message: "Company account created successfully!"
+  - Verify company ID is returned
+  - Check database entry is created correctly
+
+COMPANY LOGIN TESTING:
+□ Test login with valid credentials:
+  - Use registered email and password
+  - Verify success message: "Welcome back, [Company Name]! Login successful."
+  - Verify company ID and company name returned
+  - Check session is set correctly
+
+□ Test login with invalid credentials:
+  - Wrong email, correct password
+  - Correct email, wrong password
+  - Non-existent email
+  - Empty email field
+  - Empty password field
+
+□ Test email format validation:
+  - Invalid email format in login
+  - Valid email format
+
+□ Test session management:
+  - Verify company stays logged in after page refresh
+  - Test logout functionality
+  - Verify session data is properly stored
+
+================================================================================
+                        ADMIN AUTHENTICATION TESTING
+================================================================================
+
+ADMIN LOGIN TESTING:
+□ Test login with valid credentials:
+  - Username: "Admin@candihire"
+  - Password: "Admin123"
+  - Verify redirect to AdminDashboard.php
+  - Check admin session variables are set
+
+□ Test login with invalid credentials:
+  - Wrong username, correct password
+  - Correct username, wrong password
+  - Empty username field
+  - Empty password field
+  - Non-existent username
+
+□ Test session management:
+  - Verify admin stays logged in after page refresh
+  - Test logout functionality
+  - Verify admin session data is properly stored
+
+□ Test access control:
+  - Verify admin can access admin dashboard
+  - Test redirect when already logged in
+
+================================================================================
+                        SECURITY TESTING
+================================================================================
+
+BASIC SECURITY CHECKS:
+□ Test SQL injection prevention:
+  - Try SQL injection in email field: "'; DROP TABLE users; --"
+  - Try SQL injection in password field
+  - Verify queries are properly parameterized
+
+□ Test XSS prevention:
+  - Try XSS in name fields: "<script>alert('XSS')</script>"
+  - Try XSS in email field
+  - Verify input is properly sanitized
+
+□ Test password security:
+  - Verify passwords are hashed in database
+  - Test password verification works correctly
+  - Check password hashing algorithm (should be PASSWORD_DEFAULT)
+
+□ Test session security:
+  - Verify session data is properly validated
+  - Test session timeout (if implemented)
+  - Check session hijacking prevention
+
+□ Test input validation:
+  - Test special characters in all fields
+  - Test very long input strings
+  - Test empty strings and whitespace
+
+================================================================================
+                        ERROR HANDLING TESTING
+================================================================================
+
+ERROR MESSAGE TESTING:
+□ Test appropriate error messages for:
+  - Missing required fields
+  - Invalid email format
+  - Password mismatch
+  - Password too short
+  - Duplicate email registration
+  - Invalid login credentials
+  - Server errors
+
+□ Test error message clarity:
+  - Messages should be user-friendly
+  - Messages should indicate what needs to be fixed
+  - Messages should not expose system information
+
+□ Test error logging:
+  - Verify errors are logged to server logs
+  - Check that sensitive information is not logged
+  - Verify error handling doesn't crash the application
+
+================================================================================
+                        INTEGRATION TESTING
+================================================================================
+
+DATABASE INTEGRATION:
+□ Test database connection during registration
+□ Test database connection during login
+□ Test database error handling
+□ Verify data integrity after operations
+
+SESSION INTEGRATION:
+□ Test session creation after successful login
+□ Test session validation on protected pages
+□ Test session destruction on logout
+□ Test session data consistency
+
+API INTEGRATION:
+□ Test JSON request/response format
+□ Test proper HTTP status codes
+□ Test CORS headers
+□ Test content-type headers
+
+================================================================================
+                        USABILITY TESTING
+================================================================================
+
+USER INTERFACE TESTING:
+□ Test form layout and design
+□ Test input field validation feedback
+□ Test button functionality
+□ Test error message display
+□ Test success message display
+
+RESPONSIVE DESIGN:
+□ Test on desktop browsers
+□ Test on mobile devices
+□ Test on tablets
+□ Test form usability on different screen sizes
+
+USER EXPERIENCE:
+□ Test registration flow completion
+□ Test login flow completion
+□ Test error recovery
+□ Test form reset functionality
+□ Test navigation between forms
+
+================================================================================
+                        BROWSER COMPATIBILITY TESTING
+================================================================================
+
+BROWSER TESTING:
+□ Test on Chrome
+□ Test on Firefox
+□ Test on Safari
+□ Test on Edge
+□ Test on mobile browsers
+
+FUNCTIONALITY TESTING:
+□ Test form submission in all browsers
+□ Test JavaScript functionality (if any)
+□ Test CSS styling in all browsers
+□ Test error message display
+
+================================================================================
+                        PERFORMANCE TESTING
+================================================================================
+
+RESPONSE TIME TESTING:
+□ Test registration response time
+□ Test login response time
+□ Test error response time
+□ Test with multiple concurrent users
+
+LOAD TESTING:
+□ Test system with multiple registration attempts
+□ Test system with multiple login attempts
+□ Test database performance under load
+
+================================================================================
+                        TEST EXECUTION CHECKLIST
+================================================================================
+
+BEFORE TESTING:
+□ Set up test environment
+□ Prepare test data
+□ Clear any existing test data
+□ Verify all systems are running
+
+DURING TESTING:
+□ Execute each test case systematically
+□ Document any issues found
+□ Record test results
+□ Take screenshots of errors (if any)
+
+AFTER TESTING:
+□ Clean up test data
+□ Document test results
+□ Report any bugs found
+□ Verify system is ready for production
+
+================================================================================
+                        TEST SIGN-OFF
+================================================================================
+
+TESTING COMPLETION:
+□ All registration tests completed
+□ All login tests completed
+□ All security tests completed
+□ All error handling tests completed
+□ All integration tests completed
+□ All usability tests completed
+
+APPROVAL:
+□ Tester: _________________ Date: _________
+□ Developer: ______________ Date: _________
+□ Project Manager: ________ Date: _________
+
+================================================================================
+                        NOTES AND COMMENTS
+================================================================================
+
+TESTING NOTES:
+[Space for additional notes and observations]
+
+ISSUES FOUND:
+[Space for documenting any issues or bugs found during testing]
+
+RECOMMENDATIONS:
+[Space for recommendations and improvements]
+
+================================================================================
+                            END OF CHECKLIST
+================================================================================
+
+This focused testing checklist covers the essential authentication functions
+for the CandiHire platform. It provides a systematic approach to testing
+login and account creation features without going into deep technical details.
+
+Each test case should be executed carefully, and results should be documented
+for future reference and quality assurance purposes.

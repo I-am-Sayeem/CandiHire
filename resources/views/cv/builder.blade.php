@@ -21,27 +21,14 @@
             <!-- Welcome Section -->
             <div class="welcome-section" style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border);">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div id="candidateAvatar" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; {{ $candidateProfilePicture ? 'background-image: url(' . $candidateProfilePicture . '); background-size: cover; background-position: center;' : 'background: linear-gradient(135deg, var(--accent), var(--accent-2));' }}">
-                        {{ $candidateProfilePicture ? '' : strtoupper(substr($candidateName, 0, 1)) }}
+                    <div id="candidateAvatar" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; {{ $candidateProfilePicture ? 'background-image: url(' . asset($candidateProfilePicture) . '); background-size: cover; background-position: center;' : 'background: linear-gradient(135deg, var(--accent), var(--accent-2));' }}">
+                        {{ $candidateProfilePicture ? '' : strtoupper(substr($candidateName ?? 'U', 0, 1)) }}
                     </div>
                     <div>
                         <div style="color: var(--text-primary); font-weight: 600; font-size: 14px;">Welcome back!</div>
                         <div id="candidateNameDisplay" style="color: var(--text-secondary); font-size: 12px;">{{ $candidateName }}</div>
                     </div>
                 </div>
-                <button id="editProfileBtn" 
-    style="background: var(--accent); 
-           color: white; 
-           border: none; 
-           border-radius: 6px; 
-           padding: 8px 12px;
-           font-size: 12px; 
-           cursor: pointer; 
-           margin-top: 10px; 
-           width: 100%; 
-           transition: background 0.2s;">
-    <i class="fas fa-user-edit" style="margin-right: 6px;"></i>Edit Profile
-</button>
             </div>
             
             <!-- Main Menu Section -->
@@ -113,6 +100,21 @@
                     <!-- Personal Info Tab -->
                     <div id="personal" class="tab-content">
                         <div class="form-grid">
+                            <!-- Profile Picture Upload -->
+                            <div class="form-group full-width" style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                                <div id="profilePicPreview" style="width: 100px; height: 100px; border-radius: 50%; background: var(--bg-tertiary); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    <i class="fas fa-user" style="font-size: 40px; color: var(--text-secondary);"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label class="form-label">Profile Picture</label>
+                                    <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+                                    <button type="button" onclick="document.getElementById('profilePictureInput').click()" class="btn btn-secondary" style="margin-top: 5px;">
+                                        <i class="fas fa-upload"></i> Upload Photo
+                                    </button>
+                                    <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">Recommended: Square image, max 2MB</p>
+                                </div>
+                            </div>
+                            
                             <div class="form-group">
                                 <label class="form-label">First Name</label>
                                 <input type="text" name="firstName" class="form-input" placeholder="John" value="{{ auth()->user()->first_name ?? '' }}">
@@ -134,8 +136,8 @@
                                 <input type="text" name="address" class="form-input" placeholder="123 Main St, City, Country" value="{{ auth()->user()->address ?? '' }}">
                             </div>
                             <div class="form-group full-width">
-                                <label class="form-label">Professional Summary</label>
-                                <textarea name="summary" class="form-textarea" placeholder="Write a brief summary of your professional background and goals..."></textarea>
+                                <label class="form-label">Professional Summary / Objective</label>
+                                <textarea name="summary" class="form-textarea" placeholder="Write a brief summary of your professional background and career objectives..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -299,6 +301,27 @@
              if(editProfileBtn) {
                  editProfileBtn.addEventListener('click', openProfileEditPopup);
              }
+             
+             // Setup Profile Picture Upload Handler
+             const profilePicInput = document.getElementById('profilePictureInput');
+             if (profilePicInput) {
+                 profilePicInput.addEventListener('change', function(e) {
+                     const file = e.target.files[0];
+                     if (file) {
+                         if (file.size > 2 * 1024 * 1024) {
+                             showToast('Image too large. Maximum 2MB allowed.', 'error');
+                             return;
+                         }
+                         const reader = new FileReader();
+                         reader.onload = function(e) {
+                             const previewDiv = document.getElementById('profilePicPreview');
+                             previewDiv.innerHTML = '<img src="' + e.target.result + '" style="width: 100%; height: 100%; object-fit: cover;">';
+                             previewDiv.dataset.imageData = e.target.result;
+                         };
+                         reader.readAsDataURL(file);
+                     }
+                 });
+             }
         });
         
         // Profile Edit Popup Functions
@@ -442,27 +465,249 @@
         }
 
         function generatePDF() {
-            const element = document.getElementById('cvForm');
-            const opt = {
-                margin: 1,
-                filename: 'my-cv.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
+            try {
+                var data = collectCvData();
+                var html = buildCvHtml(data);
+                
+                // Create filename from name
+                var fullName = [data.firstName, data.lastName].filter(Boolean).join('_') || 'my_cv';
+                
+                // Open in new window and trigger print for PDF
+                var win = window.open('', '_blank', 'width=900,height=700');
+                if (!win) { 
+                    alert('Pop-up blocked. Please allow pop-ups to download PDF.'); 
+                    return; 
+                }
+                
+                win.document.open();
+                win.document.write(html);
+                win.document.close();
+                
+                // Wait for content to load then trigger print
+                win.onload = function() {
+                    setTimeout(function() {
+                        win.focus();
+                        win.print();
+                    }, 500);
+                };
+                
+                showToast('PDF download dialog opened!', 'success');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showToast('Error generating PDF: ' + error.message, 'error');
+            }
+        }
+        
+        // Collect all CV data from the form
+        function collectCvData() {
+            var data = {};
+            data.firstName = (document.querySelector('input[name="firstName"]') || { value: '' }).value.trim();
+            data.lastName = (document.querySelector('input[name="lastName"]') || { value: '' }).value.trim();
+            data.email = (document.querySelector('input[name="email"]') || { value: '' }).value.trim();
+            data.phone = (document.querySelector('input[name="phone"]') || { value: '' }).value.trim();
+            data.address = (document.querySelector('input[name="address"]') || { value: '' }).value.trim();
+            data.summary = (document.querySelector('textarea[name="summary"]') || { value: '' }).value.trim();
             
-            // Basic client-side PDF generation
-            html2pdf().set(opt).from(element).save().then(function() {
-                 showToast('PDF downloaded successfully!', 'success');
-            }).catch(function(error) {
-                 showToast('Error generating PDF.', 'error');
-                 console.error(error);
+            // Get profile picture
+            var profilePicPreview = document.getElementById('profilePicPreview');
+            data.profilePicture = profilePicPreview ? (profilePicPreview.dataset.imageData || '') : '';
+
+            // Get experiences
+            data.experiences = [];
+            document.querySelectorAll('#experience-container .entry-section').forEach(function(entry) {
+                var item = {
+                    title: (entry.querySelector('input[name="jobTitle[]"]') || { value: '' }).value.trim(),
+                    company: (entry.querySelector('input[name="company[]"]') || { value: '' }).value.trim(),
+                    startDate: (entry.querySelector('input[name="startDate[]"]') || { value: '' }).value.trim(),
+                    endDate: (entry.querySelector('input[name="endDate[]"]') || { value: '' }).value.trim(),
+                    description: (entry.querySelector('textarea[name="jobDescription[]"]') || { value: '' }).value.trim()
+                };
+                if (item.title || item.company || item.description) {
+                    data.experiences.push(item);
+                }
             });
+
+            // Get education
+            data.education = [];
+            document.querySelectorAll('#education-container .entry-section').forEach(function(entry) {
+                var item = {
+                    degree: (entry.querySelector('input[name="degree[]"]') || { value: '' }).value.trim(),
+                    institution: (entry.querySelector('input[name="institution[]"]') || { value: '' }).value.trim(),
+                    startYear: (entry.querySelector('input[name="eduStartYear[]"]') || { value: '' }).value.trim(),
+                    endYear: (entry.querySelector('input[name="eduEndYear[]"]') || { value: '' }).value.trim()
+                };
+                if (item.degree || item.institution) {
+                    data.education.push(item);
+                }
+            });
+
+            // Get skills
+            data.skills = {
+                programmingLanguages: (document.querySelector('input[name="programmingLanguages"]') || { value: '' }).value.trim(),
+                frameworks: (document.querySelector('input[name="frameworks"]') || { value: '' }).value.trim(),
+                tools: (document.querySelector('input[name="tools"]') || { value: '' }).value.trim(),
+                softSkills: (document.querySelector('input[name="softSkills"]') || { value: '' }).value.trim()
+            };
+
+            // Get projects
+            data.projects = [];
+            document.querySelectorAll('#projects-container .entry-section').forEach(function(entry) {
+                var item = {
+                    name: (entry.querySelector('input[name="projectName[]"]') || { value: '' }).value.trim(),
+                    role: (entry.querySelector('input[name="projectRole[]"]') || { value: '' }).value.trim(),
+                    description: (entry.querySelector('textarea[name="projectDescription[]"]') || { value: '' }).value.trim(),
+                    technologies: (entry.querySelector('input[name="projectTechnologies[]"]') || { value: '' }).value.trim()
+                };
+                if (item.name || item.description) {
+                    data.projects.push(item);
+                }
+            });
+
+            return data;
+        }
+
+        // Build HTML for CV preview - Professional Two-Column Layout
+        function buildCvHtml(data) {
+            function esc(str) { return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+            
+            var fullName = [data.firstName, data.lastName].filter(Boolean).join(' ') || 'Your Name';
+            
+            // Profile picture HTML
+            var profilePicHtml = data.profilePicture 
+                ? '<img src="' + data.profilePicture + '" alt="Profile" class="profile-pic">'
+                : '<div class="profile-pic-placeholder"><span>' + (data.firstName ? data.firstName.charAt(0).toUpperCase() : 'U') + '</span></div>';
+            
+            // Contact info for sidebar
+            var contactHtml = '';
+            if (data.phone) contactHtml += '<div class="contact-item"><i>📞</i> ' + esc(data.phone) + '</div>';
+            if (data.email) contactHtml += '<div class="contact-item"><i>📧</i> ' + esc(data.email) + '</div>';
+            if (data.address) contactHtml += '<div class="contact-item"><i>📍</i> ' + esc(data.address) + '</div>';
+            
+            // Skills for sidebar
+            var skillsList = [];
+            if (data.skills && data.skills.programmingLanguages) skillsList.push('<div class="skill-category"><strong>Programming:</strong><br>' + esc(data.skills.programmingLanguages) + '</div>');
+            if (data.skills && data.skills.frameworks) skillsList.push('<div class="skill-category"><strong>Frameworks:</strong><br>' + esc(data.skills.frameworks) + '</div>');
+            if (data.skills && data.skills.tools) skillsList.push('<div class="skill-category"><strong>Tools:</strong><br>' + esc(data.skills.tools) + '</div>');
+            if (data.skills && data.skills.softSkills) skillsList.push('<div class="skill-category"><strong>Soft Skills:</strong><br>' + esc(data.skills.softSkills) + '</div>');
+            var skillsHtml = skillsList.join('');
+            
+            // Education for right column
+            var eduHtml = (data.education || []).map(function(ed){
+                var header = esc(ed.degree) || 'Degree';
+                var institution = ed.institution ? ' - ' + esc(ed.institution) : '';
+                var dates = [ed.startYear, ed.endYear].filter(Boolean).join(' - ');
+                return '<div class="edu-item"><div class="edu-title">' + header + institution + '</div>' + 
+                       (dates ? '<div class="edu-dates">' + esc(dates) + '</div>' : '') + '</div>';
+            }).join('');
+            
+            // Experience for right column
+            var expHtml = (data.experiences || []).map(function(e){
+                var title = esc(e.title) || 'Position';
+                var company = e.company ? ' at ' + esc(e.company) : '';
+                var dates = [e.startDate, e.endDate].filter(Boolean).join(' - ');
+                var desc = e.description ? '<div class="exp-desc">' + esc(e.description).replace(/\n/g,'<br>') + '</div>' : '';
+                return '<div class="exp-item"><div class="exp-title">' + title + company + '</div>' + 
+                       (dates ? '<div class="exp-dates">' + esc(dates) + '</div>' : '') + desc + '</div>';
+            }).join('');
+            
+            // Projects for right column
+            var projHtml = (data.projects || []).map(function(p){
+                var name = esc(p.name) || 'Project';
+                var role = p.role ? ' (' + esc(p.role) + ')' : '';
+                var tech = p.technologies ? '<div class="proj-tech"><em>' + esc(p.technologies) + '</em></div>' : '';
+                var desc = p.description ? '<div class="proj-desc">' + esc(p.description).replace(/\n/g,'<br>') + '</div>' : '';
+                return '<div class="proj-item"><div class="proj-title">' + name + role + '</div>' + tech + desc + '</div>';
+            }).join('');
+
+            var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>CV - ' + esc(fullName) + '</title>\n'
+                + '<style>\n'
+                + '* { margin: 0; padding: 0; box-sizing: border-box; }\n'
+                + 'body { font-family: "Segoe UI", Arial, sans-serif; background: #f0f0f0; }\n'
+                + '.cv-container { display: flex; max-width: 900px; margin: 20px auto; box-shadow: 0 5px 30px rgba(0,0,0,0.2); }\n'
+                + '.sidebar { width: 280px; background: linear-gradient(135deg, #1a5276 0%, #154360 100%); color: white; padding: 0; }\n'
+                + '.sidebar-content { padding: 30px 25px; }\n'
+                + '.profile-pic-container { text-align: center; padding: 30px 25px; background: rgba(0,0,0,0.1); }\n'
+                + '.profile-pic { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid rgba(255,255,255,0.3); }\n'
+                + '.profile-pic-placeholder { width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 4px solid rgba(255,255,255,0.3); }\n'
+                + '.profile-pic-placeholder span { font-size: 60px; color: rgba(255,255,255,0.8); }\n'
+                + '.sidebar-name { font-size: 22px; font-weight: 700; margin-top: 15px; text-align: center; }\n'
+                + '.sidebar-section { margin-bottom: 25px; }\n'
+                + '.sidebar-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid rgba(255,255,255,0.3); }\n'
+                + '.contact-item { font-size: 13px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 8px; }\n'
+                + '.contact-item i { width: 16px; }\n'
+                + '.skill-category { font-size: 13px; margin-bottom: 12px; line-height: 1.5; }\n'
+                + '.main-content { flex: 1; background: white; padding: 40px; }\n'
+                + '.main-section { margin-bottom: 30px; }\n'
+                + '.main-title { font-size: 20px; font-weight: 700; color: #1a5276; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #1a5276; text-transform: uppercase; letter-spacing: 1px; }\n'
+                + '.objective-text { font-size: 14px; line-height: 1.7; color: #444; text-align: justify; }\n'
+                + '.edu-item, .exp-item, .proj-item { margin-bottom: 18px; }\n'
+                + '.edu-title, .exp-title, .proj-title { font-size: 15px; font-weight: 600; color: #333; }\n'
+                + '.edu-dates, .exp-dates { font-size: 13px; color: #666; margin-top: 3px; }\n'
+                + '.exp-desc, .proj-desc { font-size: 13px; color: #555; margin-top: 8px; line-height: 1.6; }\n'
+                + '.proj-tech { font-size: 12px; color: #1a5276; margin-top: 4px; }\n'
+                + '.no-print { margin-bottom: 20px; text-align: right; }\n'
+                + '.no-print button { padding: 10px 20px; margin-left: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }\n'
+                + '.btn-print { background: #1a5276; color: white; }\n'
+                + '.btn-close { background: #6c757d; color: white; }\n'
+                + '@page { size: A4; margin: 0; }\n'
+                + '@media print { \n'
+                + '  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }\n'
+                + '  html, body { margin: 0 !important; padding: 0 !important; width: 100%; height: 100%; }\n'
+                + '  body { background: white !important; }\n'
+                + '  .cv-container { box-shadow: none; margin: 0; max-width: 100%; width: 100%; min-height: 100vh; }\n'
+                + '  .sidebar { background: linear-gradient(135deg, #1a5276 0%, #154360 100%) !important; color: white !important; }\n'
+                + '  .profile-pic-container { background: rgba(0,0,0,0.1) !important; }\n'
+                + '  .profile-pic-placeholder { background: rgba(255,255,255,0.2) !important; }\n'
+                + '  .main-content { background: white !important; }\n'
+                + '  .main-title { color: #1a5276 !important; border-bottom-color: #1a5276 !important; }\n'
+                + '  .no-print { display: none !important; }\n'
+                + '}\n'
+                + '</style>\n</head>\n<body>\n'
+                + '<div class="no-print">\n'
+                + '  <button class="btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>\n'
+                + '  <button class="btn-close" onclick="window.close()">✕ Close</button>\n'
+                + '</div>\n'
+                + '<div class="cv-container">\n'
+                + '  <div class="sidebar">\n'
+                + '    <div class="profile-pic-container">\n'
+                + '      ' + profilePicHtml + '\n'
+                + '      <div class="sidebar-name">' + esc(fullName) + '</div>\n'
+                + '    </div>\n'
+                + '    <div class="sidebar-content">\n'
+                + (contactHtml ? '      <div class="sidebar-section">\n        <div class="sidebar-title">Contact</div>\n        ' + contactHtml + '\n      </div>\n' : '')
+                + (skillsHtml ? '      <div class="sidebar-section">\n        <div class="sidebar-title">Skills</div>\n        ' + skillsHtml + '\n      </div>\n' : '')
+                + '    </div>\n'
+                + '  </div>\n'
+                + '  <div class="main-content">\n'
+                + (data.summary ? '    <div class="main-section">\n      <div class="main-title">Objective</div>\n      <div class="objective-text">' + esc(data.summary).replace(/\n/g,'<br>') + '</div>\n    </div>\n' : '')
+                + (eduHtml ? '    <div class="main-section">\n      <div class="main-title">Education</div>\n      ' + eduHtml + '\n    </div>\n' : '')
+                + (expHtml ? '    <div class="main-section">\n      <div class="main-title">Experience</div>\n      ' + expHtml + '\n    </div>\n' : '')
+                + (projHtml ? '    <div class="main-section">\n      <div class="main-title">Projects</div>\n      ' + projHtml + '\n    </div>\n' : '')
+                + '  </div>\n'
+                + '</div>\n'
+                + '</body>\n</html>';
+
+            return html;
         }
         
         function previewCV() {
-             // Mock preview
-             alert("Preview functionality would open a modal with the formatted CV.");
+            try {
+                var data = collectCvData();
+                var html = buildCvHtml(data);
+                var win = window.open('', '_blank');
+                if (!win) { 
+                    alert('Pop-up blocked. Please allow pop-ups for this site.'); 
+                    return; 
+                }
+                win.document.open();
+                win.document.write(html);
+                win.document.close();
+                
+                showToast('CV Preview opened successfully!', 'success');
+            } catch (error) {
+                console.error('Error generating preview:', error);
+                showToast('Error generating preview: ' + error.message, 'error');
+            }
         }
 
         function showToast(message, type = 'success') {
@@ -512,6 +757,291 @@
                 text.textContent = 'Light Mode';
             }
         }
+
+        // ============================================================
+        //                    PROFILE EDITING
+        // ============================================================
+        let currentCandidateId = {{ $sessionCandidateId ?? 'null' }};
+
+        // Profile editing functionality
+        function setupProfileEditing() {
+            console.log('Setting up profile editing...');
+            
+            const editProfileBtn = document.getElementById('editProfileBtn');
+            const profilePopup = document.getElementById('profileEditPopup');
+            const profileForm = document.getElementById('profileEditForm');
+            
+            if (!editProfileBtn || !profilePopup || !profileForm) {
+                console.error('Profile editing elements not found');
+                return;
+            }
+            
+            // Open profile edit popup
+            editProfileBtn.addEventListener('click', function() {
+                console.log('Opening profile edit popup');
+                loadCurrentProfile();
+                profilePopup.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Handle form submission
+            profileForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                updateProfile();
+            });
+            
+            // Handle profile picture preview
+            const profilePictureInput = document.getElementById('profilePicture');
+            if (profilePictureInput) {
+                profilePictureInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const preview = document.getElementById('profilePicturePreview');
+                            const currentPicture = document.getElementById('currentProfilePicture');
+                            if (preview && currentPicture) {
+                                preview.src = e.target.result;
+                                currentPicture.style.display = 'block';
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+            
+            // Close popup when clicking outside
+            profilePopup.addEventListener('click', function(e) {
+                if (e.target === profilePopup) {
+                    closeProfileEditPopup();
+                }
+            });
+            
+            console.log('Profile editing setup complete');
+        }
+
+        // Load current profile data
+        function loadCurrentProfile() {
+            console.log('Loading current profile data...');
+            
+            fetch(`{{ url('/api/candidate-profile') }}?candidateId=${currentCandidateId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const candidate = data.candidate;
+                        console.log('Profile data loaded:', candidate);
+                        
+                        // Populate form fields
+                        document.getElementById('fullName').value = candidate.FullName || '';
+                        document.getElementById('phoneNumber').value = candidate.PhoneNumber || '';
+                        document.getElementById('workType').value = candidate.WorkType || '';
+                        document.getElementById('yearsOfExperience').value = candidate.YearsOfExperience || 0;
+                        document.getElementById('location').value = candidate.Location || '';
+                        document.getElementById('skills').value = candidate.Skills || '';
+                        document.getElementById('summary').value = candidate.Summary || '';
+                        document.getElementById('linkedin').value = candidate.LinkedIn || '';
+                        document.getElementById('github').value = candidate.GitHub || '';
+                        document.getElementById('portfolio').value = candidate.Portfolio || '';
+                        
+                        // Handle profile picture
+                        if (candidate.ProfilePicture) {
+                            const preview = document.getElementById('profilePicturePreview');
+                            const currentPicture = document.getElementById('currentProfilePicture');
+                            if (preview && currentPicture) {
+                                preview.src = '{{ url("") }}/' + candidate.ProfilePicture;
+                                currentPicture.style.display = 'block';
+                            }
+                        }
+                    } else {
+                        console.error('Failed to load profile:', data.message);
+                        showToast('Failed to load profile data', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading profile:', error);
+                    showToast('Network error loading profile', 'error');
+                });
+        }
+
+        // Update profile
+        function updateProfile() {
+            console.log('Updating profile...');
+            
+            const form = document.getElementById('profileEditForm');
+            const submitBtn = document.getElementById('submitProfileUpdate');
+            const formData = new FormData(form);
+            
+            // Add candidate ID
+            formData.append('candidateId', currentCandidateId);
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            fetch('{{ url("/api/candidate-profile") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeProfileEditPopup();
+                    showToast('Profile updated successfully!', 'success');
+                    
+                    // Update the display with server response data
+                    if (data.fullName) {
+                        const nameDisplay = document.getElementById('candidateNameDisplay');
+                        if (nameDisplay) {
+                            nameDisplay.textContent = data.fullName;
+                        }
+                        
+                        // Update avatar
+                        const avatar = document.getElementById('candidateAvatar');
+                        if (avatar) {
+                            if (data.profilePicture) {
+                                avatar.style.backgroundImage = `url({{ url('') }}/${data.profilePicture})`;
+                                avatar.style.backgroundSize = 'cover';
+                                avatar.style.backgroundPosition = 'center';
+                                avatar.textContent = '';
+                            } else {
+                                avatar.style.backgroundImage = '';
+                                avatar.style.background = 'linear-gradient(135deg, var(--accent), var(--accent-2))';
+                                avatar.textContent = data.fullName.charAt(0).toUpperCase();
+                            }
+                        }
+                    }
+                } else {
+                    showToast(data.message || 'Failed to update profile', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating profile:', error);
+                showToast('Network error. Please try again.', 'error');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+            });
+        }
+
+        // Close profile edit popup
+        function closeProfileEditPopup() {
+            const popup = document.getElementById('profileEditPopup');
+            const form = document.getElementById('profileEditForm');
+            
+            if (popup) popup.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            if (form) form.reset();
+            
+            // Hide profile picture preview
+            const currentPicture = document.getElementById('currentProfilePicture');
+            if (currentPicture) {
+                currentPicture.style.display = 'none';
+            }
+        }
+
+        // Initialize profile editing on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setupProfileEditing();
+        });
     </script>
+
+    <!-- Profile Edit Popup -->
+    <div id="profileEditPopup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <div class="popup-header">
+                <div class="popup-title">
+                    <i class="fas fa-user-edit"></i>
+                    Edit Profile
+                </div>
+                <button class="popup-close" onclick="closeProfileEditPopup()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="profileEditForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="profilePicture">Profile Picture</label>
+                    <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
+                    <div id="currentProfilePicture" style="margin-top: 10px; display: none;">
+                        <img id="profilePicturePreview" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);" />
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number *</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="workType">Work Type *</label>
+                    <select id="workType" name="workType" required>
+                        <option value="">Select Work Type</option>
+                        <option value="full-time">Full-time</option>
+                        <option value="part-time">Part-time</option>
+                        <option value="contract">Contract</option>
+                        <option value="freelance">Freelance</option>
+                        <option value="internship">Internship</option>
+                        <option value="fresher">Fresher</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="yearsOfExperience">Years of Experience</label>
+                    <input type="number" id="yearsOfExperience" name="yearsOfExperience" 
+                           placeholder="Enter years of experience" min="0" max="50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="City, Country">
+                </div>
+                
+                <div class="form-group">
+                    <label for="skills">Skills</label>
+                    <textarea id="skills" name="skills" placeholder="List your key skills separated by commas"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="summary">Professional Summary</label>
+                    <textarea id="summary" name="summary" placeholder="Brief description about yourself and your professional background"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="linkedin">LinkedIn Profile</label>
+                    <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/yourprofile">
+                </div>
+                
+                <div class="form-group">
+                    <label for="github">GitHub Profile</label>
+                    <input type="url" id="github" name="github" placeholder="https://github.com/yourusername">
+                </div>
+                
+                <div class="form-group">
+                    <label for="portfolio">Portfolio Website</label>
+                    <input type="url" id="portfolio" name="portfolio" placeholder="https://yourportfolio.com">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeProfileEditPopup()">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitProfileUpdate">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

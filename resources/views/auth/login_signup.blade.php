@@ -92,7 +92,7 @@
                         New to CandiHire? <a href="#" id="showSignup">Create A New Account</a>
                     </div>
                     <div class="admin-login-section">
-                        <a href="admin_login_handler.php" class="admin-login-btn">
+                        <a href="{{ url('/admin/login') }}" class="admin-login-btn">
                             <i class="fas fa-shield-alt"></i>
                             Admin Login
                         </a>

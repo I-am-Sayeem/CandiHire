@@ -99,7 +99,7 @@ class AuthController extends Controller
             'PhoneNumber' => $request->PhoneNumber ?? null,
             'Industry' => $request->Industry ?? null,
             'CompanySize' => $request->CompanySize ?? null,
-            'Description' => $request->Description ?? null,
+            'CompanyDescription' => $request->Description ?? null,
             'IsActive' => 1
         ]);
 

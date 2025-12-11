@@ -26,6 +26,61 @@ class ApplicationController extends Controller
         return back()->with('success', 'Application submitted!');
     }
 
+    // ---------------- API: STORE JOB APPLICATION (JSON) ---------------- //
+    public function store(Request $request)
+    {
+        try {
+            $candidateId = session('user_id');
+            
+            if (!$candidateId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please log in to apply'
+                ], 401);
+            }
+            
+            $jobId = $request->input('jobId');
+            $coverLetter = $request->input('coverLetter');
+            $additionalNotes = $request->input('additionalNotes');
+            
+            // Check if already applied
+            $existingApp = JobApplication::where('CandidateID', $candidateId)
+                ->where('JobID', $jobId)
+                ->first();
+            
+            if ($existingApp) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You have already applied to this job'
+                ]);
+            }
+            
+            // Create application
+            $application = JobApplication::create([
+                'CandidateID' => $candidateId,
+                'JobID' => $jobId,
+                'ApplicationDate' => now(),
+                'Status' => 'Submitted',
+                'CoverLetter' => $coverLetter,
+                'Notes' => $additionalNotes
+            ]);
+            
+            // Increment application count on job posting
+            JobPosting::where('JobID', $jobId)->increment('ApplicationCount');
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Application submitted successfully!',
+                'applicationId' => $application->ApplicationID ?? $application->id
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error submitting application: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     // ---------------- CANDIDATE VIEW APPLICATION STATUS ---------------- //
     public function candidateStatus()
     {

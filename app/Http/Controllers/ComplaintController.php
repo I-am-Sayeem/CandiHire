@@ -27,4 +27,44 @@ class ComplaintController extends Controller
 
         return back()->with('success', 'Complaint submitted!');
     }
+
+    // ---------------- API: STORE JOB REPORT (JSON) ---------------- //
+    public function storeJobReport(Request $request)
+    {
+        try {
+            $userId = session('user_id');
+            $userType = session('user_type') ?? 'candidate';
+            
+            if (!$userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please log in to report'
+                ], 401);
+            }
+            
+            $jobId = $request->input('jobId');
+            $companyId = $request->input('companyId');
+            $reason = $request->input('reason');
+            $details = $request->input('details');
+            
+            // Create the complaint/report
+            Complaint::create([
+                'UserID'   => $userId,
+                'UserType' => $userType,
+                'Subject'  => "Job Report: {$reason}",
+                'Message'  => "Job ID: {$jobId}\nCompany ID: {$companyId}\nReason: {$reason}\nDetails: {$details}",
+                'Status'   => 'Pending'
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Report submitted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error submitting report: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

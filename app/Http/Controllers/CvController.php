@@ -17,8 +17,9 @@ class CvController extends Controller
         
         $candidateName = $candidate->FullName ?? 'User';
         $candidateProfilePicture = $candidate->ProfilePicture ?? null;
+        $sessionCandidateId = $candidateId;
         
-        return view('cv.builder', compact('candidateName', 'candidateProfilePicture'));
+        return view('cv.builder', compact('candidateName', 'candidateProfilePicture', 'sessionCandidateId'));
     }
 
     /**

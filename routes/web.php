@@ -15,6 +15,8 @@ use App\Http\Controllers\CvController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\JobSeekingController;
+use App\Http\Controllers\CandidateProfileController;
 
 // ============================================================
 //                        AUTH ROUTES
@@ -31,6 +33,10 @@ Route::post('/register/candidate', [AuthController::class, 'registerCandidate'])
 Route::get('/register/company', [AuthController::class, 'showCompanyRegister']);
 Route::post('/register/company', [AuthController::class, 'registerCompany']);
 
+// Admin Login
+Route::get('/admin/login', fn() => view('auth.admin_login'))->name('admin.login');
+Route::post('/admin/login', [AuthController::class, 'login']);
+
 // ============================================================
 //                     CANDIDATE ROUTES
 // ============================================================
@@ -39,6 +45,7 @@ Route::prefix('candidate')->name('candidate.')->group(function () {
     Route::get('/profile', [CandidateController::class, 'profile'])->name('profile');
     Route::post('/profile/update', [CandidateController::class, 'updateProfile'])->name('profile.update');
     Route::get('/applications', [ApplicationController::class, 'candidateStatus'])->name('applications');
+    Route::get('/messages', [MessagingController::class, 'index'])->name('messages');
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
@@ -150,3 +157,23 @@ Route::get('/notifications', [NotificationController::class, 'index'])->name('no
 //                    COMPLAINT ROUTES
 // ============================================================
 Route::post('/complaints/submit', [ComplaintController::class, 'submit'])->name('complaints.submit');
+
+// ============================================================
+//                   JOB SEEKING API ROUTES
+// ============================================================
+Route::get('/api/job-seeking', [JobSeekingController::class, 'index'])->name('api.job-seeking.index');
+Route::post('/api/job-seeking', [JobSeekingController::class, 'store'])->name('api.job-seeking.store');
+
+// ============================================================
+//                 CANDIDATE PROFILE API ROUTES
+// ============================================================
+Route::get('/api/candidate-profile', [CandidateProfileController::class, 'show'])->name('api.candidate-profile.show');
+Route::post('/api/candidate-profile', [CandidateProfileController::class, 'update'])->name('api.candidate-profile.update');
+
+// ============================================================
+//                    JOB POSTS API ROUTES
+// ============================================================
+Route::get('/api/job-posts', [JobController::class, 'apiIndex'])->name('api.job-posts.index');
+Route::post('/api/job-applications', [ApplicationController::class, 'store'])->name('api.job-applications.store');
+Route::get('/api/company-profile/{id}', [CompanyController::class, 'apiShow'])->name('api.company-profile.show');
+Route::post('/api/job-reports', [ComplaintController::class, 'storeJobReport'])->name('api.job-reports.store');
