@@ -27,13 +27,13 @@ class CvController extends Controller
      */
     public function checker()
     {
-        $candidateId = session('user_id');
-        $candidate = Candidate::find($candidateId);
+        $companyId = session('user_id');
+        $company = \App\Models\Company::find($companyId);
         
-        $candidateName = $candidate->FullName ?? 'User';
-        $candidateProfilePicture = $candidate->ProfilePicture ?? null;
+        $companyName = $company->CompanyName ?? session('company_name', 'Company');
+        $companyLogo = $company && $company->Logo ? asset($company->Logo) : null;
         
-        return view('cv.checker', compact('candidateName', 'candidateProfilePicture'));
+        return view('cv.checker', compact('companyName', 'companyLogo'));
     }
 
     /**

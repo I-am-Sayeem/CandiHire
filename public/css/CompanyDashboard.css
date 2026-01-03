@@ -105,9 +105,9 @@
         }
 
         .nav-item:hover {
-            transform: translateX(5px);
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-hover));
-            color: white;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            transform: translateX(4px);
         }
 
         /* Form Input Animations */
@@ -200,16 +200,17 @@
             margin-bottom: 6px;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+            transition: all 0.3s ease;
             font-size: 15px;
-            will-change: transform, background-color, color;
+            text-decoration: none;
+            color: var(--text-primary);
+            will-change: transform, background-color;
         }
 
         .nav-item:hover {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-hover));
-            color: white;
-            transform: translateX(5px);
-            box-shadow: 0 4px 15px rgba(88, 166, 255, 0.3);
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            transform: translateX(4px);
         }
 
         .nav-item.active {

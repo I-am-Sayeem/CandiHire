@@ -12,6 +12,7 @@ class Message extends Model
 
     protected $fillable = [
         'ConversationID','SenderID','SenderType',
+        'ReceiverID','ReceiverType','Subject',
         'MessageText','IsRead','AttachmentUrl'
     ];
 

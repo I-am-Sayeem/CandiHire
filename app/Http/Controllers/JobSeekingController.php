@@ -53,36 +53,41 @@ class JobSeekingController extends Controller
                     'hasMore' => ($offset + $limit) < $totalPosts
                 ]);
             } else {
-                // Get all active job seeking posts (simple query without JOIN)
+                // Get all active job seeking posts with candidate info
                 $query = DB::table('job_seeking_posts')
-                    ->where('Status', 'active');
+                    ->join('candidates', 'job_seeking_posts.CandidateID', '=', 'candidates.CandidateID')
+                    ->where('job_seeking_posts.Status', 'active');
 
                 // Search functionality
                 $search = $request->query('search');
                 if (!empty($search)) {
                     $query->where(function ($q) use ($search) {
-                        $q->where('JobTitle', 'like', "%$search%")
-                          ->orWhere('KeySkills', 'like', "%$search%")
-                          ->orWhere('CareerGoal', 'like', "%$search%");
+                        $q->where('job_seeking_posts.JobTitle', 'like', "%$search%")
+                          ->orWhere('job_seeking_posts.KeySkills', 'like', "%$search%")
+                          ->orWhere('job_seeking_posts.CareerGoal', 'like', "%$search%")
+                          ->orWhere('candidates.FullName', 'like', "%$search%");
                     });
                 }
 
                 $posts = $query->select(
-                        'PostID',
-                        'JobTitle',
-                        'CareerGoal',
-                        'KeySkills',
-                        'Experience',
-                        'Education',
-                        'SoftSkills',
-                        'ValueToEmployer',
-                        'ContactInfo',
-                        'Status',
-                        'CreatedAt',
-                        'Views',
-                        'Applications'
+                        'job_seeking_posts.PostID',
+                        'job_seeking_posts.CandidateID',
+                        'job_seeking_posts.JobTitle',
+                        'job_seeking_posts.CareerGoal',
+                        'job_seeking_posts.KeySkills',
+                        'job_seeking_posts.Experience',
+                        'job_seeking_posts.Education',
+                        'job_seeking_posts.SoftSkills',
+                        'job_seeking_posts.ValueToEmployer',
+                        'job_seeking_posts.ContactInfo',
+                        'job_seeking_posts.Status',
+                        'job_seeking_posts.CreatedAt',
+                        'job_seeking_posts.Views',
+                        'job_seeking_posts.Applications',
+                        'candidates.FullName',
+                        'candidates.ProfilePicture'
                     )
-                    ->orderBy('CreatedAt', 'desc')
+                    ->orderBy('job_seeking_posts.CreatedAt', 'desc')
                     ->limit($limit)
                     ->offset($offset)
                     ->get();

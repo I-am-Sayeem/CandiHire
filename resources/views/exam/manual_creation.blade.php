@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <a href="{{ url('create-exam') }}" class="back-btn">
+        <a href="{{ url('company/exams/create') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i>
             Back to Exam Type Selection
         </a>
@@ -37,7 +37,7 @@
         </div>
         @endif
 
-        <form id="examForm" method="POST" action="{{ url('exams/manual-store') }}">
+        <form id="examForm" method="POST" action="{{ url('company/exams/manual-store') }}">
             @csrf
             <input type="hidden" name="job_id" value="{{ $jobId ?? '' }}">
             <input type="hidden" name="department" value="{{ $department ?? '' }}">

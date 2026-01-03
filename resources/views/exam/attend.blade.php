@@ -52,23 +52,20 @@
                         <div id="candidateNameDisplay" style="color: var(--text-secondary); font-size: 12px;">{{ $candidateName }}</div>
                     </div>
                 </div>
-                <button id="editProfileBtn" style="background: var(--accent); color: white; border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; cursor: pointer; margin-top: 10px; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent)'">
-                    <i class="fas fa-user-edit" style="margin-right: 6px;"></i>Edit Profile
-                </button>
             </div>
             
             <!-- Main Menu Section -->
             <div class="nav-section">
                 <div class="nav-section-title">Main menu</div>
-                <a href="{{ route('candidate.dashboard') }}" class="nav-item">
+                <a href="{{ url('/candidate/dashboard') }}" class="nav-item">
                     <i class="fas fa-home"></i>
                     <span>News feed</span>
                 </a>
-                <a href="{{ url('candidate/cv-builder') }}" class="nav-item">
+                <a href="{{ url('/cv/builder') }}" class="nav-item">
                     <i class="fas fa-file-alt"></i>
                     <span>CV builder</span>
                 </a>
-                <a href="{{ url('candidate/application-status') }}" class="nav-item">
+                <a href="{{ url('/candidate/applications') }}" class="nav-item">
                     <i class="fas fa-clipboard-list"></i>
                     <span>Application status</span>
                 </a>
@@ -77,11 +74,11 @@
             <!-- Interviews & Exams Section -->
             <div class="nav-section">
                 <div class="nav-section-title">Interviews & Exams</div>
-                <a href="{{ url('candidate/interview-schedule') }}" class="nav-item">
+                <a href="{{ url('/interview/schedule') }}" class="nav-item">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Interview schedule</span>
                 </a>
-                <a href="{{ url('candidate/attend-exam') }}" class="nav-item active">
+                <a href="{{ url('/exam/attend') }}" class="nav-item active">
                     <i class="fas fa-pencil-alt"></i>
                     <span>Attend Exam</span>
                 </a>
@@ -93,10 +90,7 @@
                     <i class="fas fa-moon-stars" id="themeIcon"></i>
                     <span id="themeText">Light Mode</span>
                 </button>
-                <form action="{{ route('candidate.logout') }}" method="POST" id="logout-form">
-                    @csrf
-                    <button type="submit" id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</button>
-                </form>
+                <a href="{{ url('/logout') }}" class="logout-btn" style="text-decoration: none; display: flex; justify-content: center; align-items: center;"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
             </div>
         </div>
 
@@ -896,13 +890,6 @@
                 return;
             }
             
-            // Check if assignment ID exists
-            if (!exam.assignmentId) {
-                console.error('Assignment ID missing for exam:', examId);
-                showToast('Exam assignment information is missing. Please contact support.', 'error');
-                return;
-            }
-            
             // Add loading state to button
             const startBtn = document.querySelector(`.start-exam-btn[data-id="${examId}"]`);
             if (startBtn) {
@@ -918,8 +905,8 @@
             
             // Redirect to exam taking page
             try {
-                // Assuming route for taking exam
-                window.location.href = `{{ url('candidate/take-exam') }}?exam_id=${examId}&assignment_id=${exam.assignmentId}`;
+                // Use Laravel route: Route::get('/exam/{scheduleId}', [ExamController::class, 'takeExam'])
+                window.location.href = `{{ url('exam') }}/${examId}`;
             } catch (error) {
                 console.error('Error redirecting to exam:', error);
                 showToast('Unable to start exam. Please try again.', 'error');

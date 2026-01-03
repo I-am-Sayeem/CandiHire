@@ -17,44 +17,68 @@
                 <span class="candi">Candi</span><span class="hire">Hire</span>
             </div>
             
-            <div class="nav-section">
-                <div class="nav-section-title">Overview</div>
-                <div class="nav-item " onclick="window.location.href='{{ url('company/dashboard') }}'">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/applications') }}'">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Applications</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/exams') }}'">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Exams</span>
+            <!-- Welcome Section -->
+            <div class="welcome-section" style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div id="companyLogo" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; {{ isset($companyLogo) && $companyLogo ? 'background-image: url(' . $companyLogo . '); background-size: cover; background-position: center;' : 'background: linear-gradient(135deg, var(--accent-2), #e67e22);' }}">
+                        {{ isset($companyLogo) && $companyLogo ? '' : strtoupper(substr($companyName ?? 'C', 0, 1)) }}
+                    </div>
+                    <div>
+                        <div style="color: var(--text-primary); font-weight: 600; font-size: 14px;">Welcome back!</div>
+                        <div id="companyNameDisplay" style="color: var(--text-secondary); font-size: 12px;">{{ $companyName ?? 'Company' }}</div>
+                    </div>
                 </div>
             </div>
-
+            
+            <!-- Main Menu Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">Main menu</div>
+                <a href="{{ url('/company/jobs') }}" class="nav-item">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Job Posts</span>
+                </a>
+                <a href="{{ url('/cv/checker') }}" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>CV Checker</span>
+                </a>
+                <a href="{{ url('/company/dashboard') }}" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Candidate Feed</span>
+                </a>
+            </div>
+            
+            <!-- Recruitment Section -->
             <div class="nav-section">
                 <div class="nav-section-title">Recruitment</div>
-                <div class="nav-item active">
+                <a href="{{ url('/company/exams/create') }}" class="nav-item">
+                    <i class="fas fa-pencil-alt"></i>
+                    <span>Create Exam</span>
+                </a>
+                <a href="{{ url('/company/interviews') }}" class="nav-item">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Interviews</span>
+                </a>
+                <a href="{{ url('/company/applications') }}" class="nav-item">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>View Applications</span>
+                </a>
+                <a href="{{ url('/company/mcq-results') }}" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>View MCQ Results</span>
+                </a>
+                <a href="{{ url('/company/ai-matching') }}" class="nav-item active">
                     <i class="fas fa-robot"></i>
                     <span>AI Matching</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/interviews') }}'">
-                    <i class="fas fa-video"></i>
-                    <span>Interviews</span>
-                </div>
+                </a>
             </div>
 
-            <div class="nav-section">
-                <div class="nav-section-title">Account</div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/profile') }}'">
-                    <i class="fas fa-building"></i>
-                    <span>Company Profile</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('logout') }}'">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </div>
+            <!-- Logout -->
+            <div class="logout-container">
+                <button id="themeToggleBtn" class="theme-toggle-btn" title="Switch to Light Mode">
+                    <i class="fas fa-moon-stars" id="themeIcon"></i>
+                    <span id="themeText">Light Mode</span>
+                </button>
+                <a href="{{ url('/logout') }}" class="logout-btn" style="text-decoration: none; display: flex; justify-content: center; align-items: center;"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
             </div>
         </div>
 
@@ -397,6 +421,52 @@
                 toast.css('transform', 'translateX(150%)');
             }, 3000);
         }
+
+        // Theme Toggle Functions
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('candihire-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            const btn = document.getElementById('themeToggleBtn');
+            
+            if (btn) btn.setAttribute('data-theme', theme);
+            
+            if (theme === 'dark') {
+                icon.className = 'fas fa-moon-stars';
+                text.textContent = 'Light Mode';
+            } else {
+                icon.className = 'fas fa-moon-stars';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('candihire-theme', newTheme);
+            updateThemeButton(newTheme);
+            
+            document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+            setTimeout(() => {
+                document.body.style.transition = '';
+            }, 300);
+        }
+
+        // Initialize theme on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            
+            const themeBtn = document.getElementById('themeToggleBtn');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', toggleTheme);
+            }
+        });
     </script>
 </body>
 </html>

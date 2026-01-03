@@ -12,8 +12,10 @@ class Interview extends Model
 
     protected $fillable = [
         'CandidateID','CompanyID','JobID',
-        'InterviewDate','InterviewTime','InterviewMode',
-        'Status','Notes','MeetingLink','Location'
+        'InterviewTitle','InterviewType','InterviewMode','Platform',
+        'ScheduledDate','ScheduledTime','Duration',
+        'Location','InterviewerName','InterviewerEmail','InterviewerPhone',
+        'Status','Notes','Feedback','Rating','MeetingLink'
     ];
 
     public function candidate() {

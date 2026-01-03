@@ -1,11 +1,9 @@
-@extends('layouts.app')
-
-@section('content')
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Messages - CandiHire</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/messaging_page.css') }}">
@@ -82,10 +80,16 @@
     </div>
 
     <!-- Hidden inputs for user context -->
-    <input type="hidden" id="currentUserId" value="{{ session('candidate_id') ?? session('company_id') }}">
-    <input type="hidden" id="currentUserType" value="{{ session('candidate_id') ? 'candidate' : 'company' }}">
-    <input type="hidden" id="currentUserName" value="{{ session('candidate_name') ?? session('company_name') }}">
+    <input type="hidden" id="currentUserId" value="{{ session('user_id') }}">
+    <input type="hidden" id="currentUserType" value="{{ session('user_type') ?? 'candidate' }}">
+    <input type="hidden" id="currentUserName" value="{{ session('user_name') ?? '' }}">
 
+    <script>
+        // Inject data from Laravel FIRST (before class initialization)
+        window.initialConversations = @json($conversationsJson ?? []);
+        window.initialConversationId = @json($currentConversationJson['ConversationID'] ?? null);
+        window.initialMessages = @json($messagesJson ?? []);
+    </script>
     <script>
         class MessagingPageSystem {
             constructor() {
@@ -97,6 +101,9 @@
                 this.conversations = [];
                 this.messages = [];
                 this.lastMessageId = 0;
+                this.typingTimeout = null;
+                this.isTyping = false;
+                this.otherPersonTyping = false;
                 
                 this.init();
             }
@@ -132,53 +139,130 @@
                             this.sendMessage();
                         }
                     });
+                    
+                    // Typing indicator - detect when user is typing
+                    messageInput.addEventListener('input', () => {
+                        this.onTyping();
+                    });
+                }
+            }
+
+            // Send typing status to server
+            async onTyping() {
+                if (!this.currentConversationId) return;
+                
+                // Clear previous timeout
+                if (this.typingTimeout) {
+                    clearTimeout(this.typingTimeout);
+                }
+                
+                // Send typing status (send every time to keep it active on server)
+                if (!this.isTyping) {
+                    this.isTyping = true;
+                }
+                // Always send to refresh the server cache
+                this.sendTypingStatus(true);
+                
+                // Clear typing status after 2 seconds of no typing
+                this.typingTimeout = setTimeout(async () => {
+                    this.isTyping = false;
+                    await this.sendTypingStatus(false);
+                }, 2000);
+            }
+
+            async sendTypingStatus(isTyping) {
+                try {
+                    await fetch('/api/typing/set', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            conversation_id: this.currentConversationId,
+                            is_typing: isTyping
+                        })
+                    });
+                } catch(e) {
+                    console.warn('Error sending typing status:', e);
+                }
+            }
+
+            async checkTypingStatus() {
+                if (!this.currentConversationId) return;
+                
+                try {
+                    const response = await fetch(`/api/typing/${this.currentConversationId}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const wasTyping = this.otherPersonTyping;
+                        this.otherPersonTyping = data.is_typing;
+                        
+                        // Update UI if typing status changed
+                        if (wasTyping !== this.otherPersonTyping) {
+                            this.updateTypingIndicator();
+                        }
+                    }
+                } catch(e) {
+                    console.warn('Error checking typing status:', e);
+                }
+            }
+
+            updateTypingIndicator() {
+                const statusEl = document.getElementById('messagesStatus');
+                
+                if (statusEl) {
+                    if (this.otherPersonTyping) {
+                        statusEl.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> typing...';
+                        statusEl.classList.add('typing-active');
+                    } else {
+                        statusEl.innerHTML = '';
+                        statusEl.classList.remove('typing-active');
+                    }
                 }
             }
 
             async loadConversations() {
-                // Mock data for demonstration - in real app, replace with fetch call
-                // fetch(`/api/conversations?user_id=${this.currentUserId}&type=${this.currentUserType}`)
+                // Data is passed from Laravel controller
+                console.log('Loading conversations. Initial data:', window.initialConversations);
                 
-                // Simulating API delay
-                if (this.conversations.length === 0) {
-                     // Initial mock load
-                     this.conversations = [
-                         {
-                             ConversationID: 1,
-                             OtherParticipantID: 101,
-                             OtherParticipantType: this.currentUserType === 'candidate' ? 'company' : 'candidate',
-                             OtherParticipantName: "Tech Solutions Inc.",
-                             OtherParticipantAvatar: "",
-                             LastMessage: "When are you available for an interview?",
-                             LastMessageTime: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 mins ago
-                             UnreadCount: 2
-                         },
-                         {
-                             ConversationID: 2,
-                             OtherParticipantID: 102,
-                             OtherParticipantType: this.currentUserType === 'candidate' ? 'company' : 'candidate',
-                             OtherParticipantName: "Global Systems",
-                             OtherParticipantAvatar: "",
-                             LastMessage: "Thank you for your application.",
-                             LastMessageTime: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-                             UnreadCount: 0
-                         }
-                     ];
+                if (this.conversations.length === 0 && window.initialConversations && window.initialConversations.length > 0) {
+                     this.conversations = window.initialConversations;
                      this.renderConversations();
+                } else if (this.conversations.length === 0) {
+                    // Fetch via AJAX if not preloaded
+                    try {
+                        const response = await fetch('/api/conversations');
+                        const data = await response.json();
+                        console.log('API conversations response:', data);
+                        
+                        if (data.success && data.conversations) {
+                            this.conversations = data.conversations;
+                        } else {
+                            this.conversations = [];
+                        }
+                    } catch(e) {
+                        console.warn('Could not load conversations', e);
+                        this.conversations = [];
+                    }
+                    // Always render after fetching (even if empty)
+                    this.renderConversations();
                 } else {
-                     // For polling, we would fetch and merge/update
-                     // this.renderConversations();
+                     // For polling, re-render
+                     this.renderConversations();
                 }
             }
+
 
             startRealTimePolling() {
                 if (this.isPolling) return;
                 this.isPolling = true;
                 
-                // Poll every 3 seconds
+                // Poll every 1 second for faster updates
                 this.pollInterval = setInterval(() => {
                     this.pollForUpdates();
-                }, 3000);
+                }, 1000);
             }
 
             stopRealTimePolling() {
@@ -186,10 +270,38 @@
                 this.isPolling = false;
             }
 
-            pollForUpdates() {
-                // In a real implementation:
-                // this.loadConversations();
-                // if (this.currentConversationId) this.loadMessages(this.currentConversationId); 
+            async pollForUpdates() {
+                try {
+                    // Refresh conversations list
+                    const convResponse = await fetch('/api/conversations');
+                    if (convResponse.ok) {
+                        const convData = await convResponse.json();
+                        if (convData.success && convData.conversations) {
+                            this.conversations = convData.conversations;
+                            this.renderConversations();
+                        }
+                    }
+                    
+                    // Refresh current conversation messages
+                    if (this.currentConversationId) {
+                        const msgResponse = await fetch(`/api/messages/${this.currentConversationId}`);
+                        if (msgResponse.ok) {
+                            const msgData = await msgResponse.json();
+                            if (msgData.success && msgData.messages) {
+                                // Only update if message count changed
+                                if (msgData.messages.length !== this.messages.length) {
+                                    this.messages = msgData.messages;
+                                    this.renderMessages();
+                                }
+                            }
+                        }
+                        
+                        // Check if other person is typing
+                        await this.checkTypingStatus();
+                    }
+                } catch(e) {
+                    console.warn('Polling error:', e);
+                }
             }
 
             renderConversations() {
@@ -247,26 +359,43 @@
                 }
             }
 
-            loadMessages(conversationId) {
+            async loadMessages(conversationId, showLoading = true) {
                 const container = document.getElementById('messagesList');
-                container.innerHTML = '<div class="loading-messages"><i class="fas fa-spinner fa-spin"></i>Loading...</div>';
+                if (showLoading) {
+                    container.innerHTML = '<div class="loading-messages"><i class="fas fa-spinner fa-spin"></i>Loading...</div>';
+                }
 
-                // Mock loading messages
-                setTimeout(() => {
-                    // Mock messages
-                    if (conversationId === 1) {
-                         this.messages = [
-                             { MessageID: 1, Message: "Hello, I am interested in the job.", SenderID: this.currentUserId, SenderType: this.currentUserType, CreatedAt: new Date(Date.now() - 1000 * 60 * 60).toISOString() },
-                             { MessageID: 2, Message: "Hi! Thanks for reaching out.", SenderID: 101, SenderType: 'other', SenderName: "Tech Solutions", CreatedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
-                             { MessageID: 3, Message: "When are you available for an interview?", SenderID: 101, SenderType: 'other', SenderName: "Tech Solutions", CreatedAt: new Date(Date.now() - 1000 * 60 * 5).toISOString() }
-                         ];
+                // Load messages from API
+                try {
+                    const response = await fetch(`/api/messages/${conversationId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.messages) {
+                            this.messages = data.messages;
+                            this.renderMessages();
+                        } else {
+                            this.messages = [];
+                            this.renderMessages();
+                        }
                     } else {
-                         this.messages = [
-                             { MessageID: 4, Message: "Application received.", SenderID: 102, SenderType: 'other', SenderName: "Global Systems", CreatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() }
-                         ];
+                        // Try preloaded
+                        if (window.initialMessages && window.initialMessages.length > 0 && window.initialConversationId == conversationId) {
+                            this.messages = window.initialMessages;
+                        } else {
+                            this.messages = [];
+                        }
+                        this.renderMessages();
+                    }
+                } catch(e) {
+                    console.warn('Could not load messages', e);
+                    // Fallback to preloaded if available
+                    if (window.initialMessages && window.initialConversationId == conversationId) {
+                        this.messages = window.initialMessages;
+                    } else {
+                        this.messages = [];
                     }
                     this.renderMessages();
-                }, 500);
+                }
             }
 
             renderMessages() {
@@ -315,7 +444,7 @@
                 this.scrollToBottom();
             }
 
-            sendMessage() {
+            async sendMessage() {
                 const input = document.getElementById('messageInput');
                 const text = input.value.trim();
                 
@@ -323,7 +452,7 @@
 
                 // Optimistic UI update
                 const tempMsg = {
-                    MessageID: Date.now(), // temp ID
+                    MessageID: Date.now(),
                     Message: text,
                     SenderID: this.currentUserId,
                     SenderType: this.currentUserType,
@@ -336,9 +465,32 @@
                 input.value = '';
                 this.autoResizeTextarea(input);
 
-                // Mock API call
-                console.log('Sending message:', text, 'to conv:', this.currentConversationId);
-                // In real app: POST to backend, then update ID or handle error
+                // POST to backend
+                try {
+                    const response = await fetch('/messages/send', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            ConversationID: this.currentConversationId,
+                            MessageText: text
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        console.log('Message sent successfully');
+                        // Refresh messages to get the real ID (without showing loading spinner)
+                        await this.loadMessages(this.currentConversationId, false);
+                    } else {
+                        console.error('Failed to send message:', data.message);
+                    }
+                } catch(e) {
+                    console.error('Error sending message:', e);
+                }
             }
 
             searchConversations(query) {
@@ -396,31 +548,64 @@
         function updateThemeButton(theme) {
             const icon = document.getElementById('themeIcon');
             const text = document.getElementById('themeText');
-            if (theme === 'dark') {
-                icon.className = 'fas fa-sun';
-                text.textContent = 'Light Mode';
-            } else {
-                icon.className = 'fas fa-moon';
-                text.textContent = 'Dark Mode';
+            if (icon && text) {
+                if (theme === 'dark') {
+                    icon.className = 'fas fa-sun';
+                    text.textContent = 'Light Mode';
+                } else {
+                    icon.className = 'fas fa-moon';
+                    text.textContent = 'Dark Mode';
+                }
             }
         }
 
-        // Setup theme toggle
-        document.getElementById('themeToggleBtn').addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('candihire-theme', next);
-            updateThemeButton(next);
-        });
-
         function goBack() {
-            window.history.back();
+            const userType = document.getElementById('currentUserType').value;
+            if (userType === 'company') {
+                window.location.href = '/company/dashboard';
+            } else {
+                window.location.href = '/candidate/dashboard';
+            }
         }
 
-        const messagingSystem = new MessagingPageSystem();
-        initializeTheme();
+        // Setup theme toggle with null check
+        function setupThemeToggle() {
+            const themeBtn = document.getElementById('themeToggleBtn');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', () => {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('candihire-theme', next);
+                    updateThemeButton(next);
+                });
+            }
+        }
+
+        // Initialize everything
+        try {
+            initializeTheme();
+            setupThemeToggle();
+        } catch(e) {
+            console.error('Error initializing theme:', e);
+        }
+
+        let messagingSystem;
+        try {
+            messagingSystem = new MessagingPageSystem();
+        } catch(e) {
+            console.error('Error initializing MessagingPageSystem:', e);
+        }
+        
+        // If we have a current conversation preloaded, select it
+        if (window.initialConversationId && messagingSystem) {
+            messagingSystem.currentConversationId = window.initialConversationId;
+            messagingSystem.conversations = window.initialConversations;
+            messagingSystem.messages = window.initialMessages;
+            messagingSystem.renderConversations();
+            messagingSystem.showMessagesArea();
+            messagingSystem.renderMessages();
+        }
     </script>
 </body>
 </html>
-@endsection

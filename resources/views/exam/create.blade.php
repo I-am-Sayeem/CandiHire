@@ -41,6 +41,20 @@
                     </a>
                 </div>
             @else
+                @php
+                    $pendingJobs = collect($jobPosts)->where('Status', 'Pending');
+                @endphp
+                
+                @if($pendingJobs->count() > 0 && isset($selectedJobId))
+                <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 24px;"></i>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 16px;">This Job is Pending!</div>
+                        <div style="font-size: 13px; opacity: 0.9;">Create an exam below to activate this job and make it visible to candidates.</div>
+                    </div>
+                </div>
+                @endif
+                
                 <div class="form-group">
                     <label for="position" class="form-label">
                         <i class="fas fa-briefcase"></i> Choose the job post for this exam
@@ -53,18 +67,21 @@
                                     $job['Currency'] . ' ' . number_format($job['SalaryMin']) . ' - ' . number_format($job['SalaryMax']) : 
                                     'Salary not specified';
                                 $isSelected = (isset($selectedJobId) && $selectedJobId == $job['JobID']) ? 'selected' : '';
+                                $statusLabel = ($job['Status'] ?? '') === 'Pending' ? ' ⚠️ PENDING - Needs Exam' : '';
                             @endphp
                             <option value="{{ $job['JobID'] }}" 
                                     data-department="{{ $job['Department'] }}"
                                     data-location="{{ $job['Location'] }}"
                                     data-type="{{ $job['JobType'] }}"
                                     data-salary="{{ $salaryRange }}"
+                                    data-status="{{ $job['Status'] ?? 'Active' }}"
                                     {{ $isSelected }}>
-                                {{ $job['JobTitle'] }} - {{ $job['Department'] }}
+                                {{ $job['JobTitle'] }} - {{ $job['Department'] }}{{ $statusLabel }}
                             </option>
                         @endforeach
                     </select>
                 </div>
+
 
                 <div class="job-details" id="jobDetails" style="display: none;">
                     <div class="job-info-card">
@@ -220,14 +237,14 @@
                     const selectedOption = positionSelect.options[positionSelect.selectedIndex];
                     const department = selectedOption.dataset.department;
                     // Use Laravel route placeholder
-                    manualProceedBtn.href = `{{ url('exams/manual-creation') }}?job_id=${selectedPosition}&department=${encodeURIComponent(department)}`;
+                    manualProceedBtn.href = `{{ url('company/exams/manual-creation') }}?job_id=${selectedPosition}&department=${encodeURIComponent(department)}`;
                 } else {
                     autoMessage.classList.add('show');
                     // Update the link with job ID and department
                     const selectedOption = positionSelect.options[positionSelect.selectedIndex];
                     const department = selectedOption.dataset.department;
                     // Use Laravel route placeholder
-                    autoProceedBtn.href = `{{ url('exams/auto-creation') }}?job_id=${selectedPosition}&department=${encodeURIComponent(department)}`;
+                    autoProceedBtn.href = `{{ url('company/exams/auto-creation') }}?job_id=${selectedPosition}&department=${encodeURIComponent(department)}`;
                 }
             });
             

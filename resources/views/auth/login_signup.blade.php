@@ -10,12 +10,43 @@
     <script src="{{ asset('js/notification_system.js') }}"></script>
 </head>
 <body>
-    <!-- Professional Background Animations -->
-    <div class="background-container" id="backgroundContainer">
-        <div class="grid-pattern"></div>
-    </div>
+    <!-- Hero Landing Section with Logo Background -->
+    <section class="hero-landing" id="heroLanding">
+        <div class="hero-background">
+            <div class="logo-watermark">
+                <img src="https://z-cdn-media.chatglm.cn/files/679b0056-b12f-411d-8a44-f81eb30411fa_CandiHire%20Logo.png?auth_key=1789498881-6b01dceb81c849e4b1fb0447e1d05a91-0-027ec66914332736d7f6859adb370481" alt="CandiHire Logo">
+            </div>
+            <div class="animated-particles" id="particlesContainer"></div>
+            <div class="gradient-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-logo-animated">
+                <img src="https://z-cdn-media.chatglm.cn/files/679b0056-b12f-411d-8a44-f81eb30411fa_CandiHire%20Logo.png?auth_key=1789498881-6b01dceb81c849e4b1fb0447e1d05a91-0-027ec66914332736d7f6859adb370481" alt="CandiHire Logo" class="hero-logo-img">
+            </div>
+            <h1 class="hero-title">
+                <span class="title-candi">Candi</span><span class="title-hire">Hire</span>
+            </h1>
+            <p class="hero-tagline">FIND • MATCH • HIRE</p>
+            <p class="hero-subtitle">Where Talent Meets Opportunity</p>
+        </div>
+        <div class="scroll-indicator" onclick="scrollToContent()">
+            <div class="scroll-text">Scroll Down</div>
+            <div class="scroll-arrow">
+                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Wrapper (everything after hero) -->
+    <div class="main-wrapper" id="mainContent">
+        <!-- Professional Background Animations -->
+        <div class="background-container" id="backgroundContainer">
+            <div class="grid-pattern"></div>
+        </div>
     
-    <div class="header">
+        <div class="header">
         <div class="container">
             <nav class="nav">
                 <div class="logo">
@@ -67,7 +98,10 @@
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="password" name="password" placeholder="Enter your password" required>
+                            <div class="password-wrapper">
+                                <input type="password" name="password" id="loginPassword" placeholder="Enter your password" required>
+                                <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                            </div>
                         </div>
                         <div class="form-options">
                             <div class="checkbox-group">
@@ -251,8 +285,10 @@
         </div>
     </div>
 
+    <div style="height: 50px; width: 100%; clear: both;"></div>
+
     <!-- Features Section -->
-    <section id="features" class="features-section">
+    <section id="features" class="features-section" style="position: relative; z-index: 5; clear: both; background: linear-gradient(135deg, #0c1445 0%, #1a237e 50%, #283593 100%); margin-top: 400px;">
         <div class="container">
             <div class="section-header">
                 <div class="section-tag">✨ FEATURES</div>
@@ -312,9 +348,8 @@
         </div>
     </section>
 
-
     <!-- About Us Section -->
-    <section id="about" class="about-section">
+    <section id="about" class="about-section" style="position: relative; z-index: 5; clear: both; background: linear-gradient(135deg, #1e237e 0%, #0c1445 100%);">
         <div class="container">
             <div class="about-content">
                 <div class="about-text" data-aos="fade-right">
@@ -473,6 +508,96 @@
             </div>
         </div>
     </section>
+    </div><!-- End main-wrapper -->
+
+    <style>
+        /* Main wrapper to separate hero from content */
+        .main-wrapper {
+            position: relative;
+            z-index: 50;
+            background: linear-gradient(180deg, #0a0e14 0%, #0d1117 5%, #0d1117 100%);
+            min-height: 100vh;
+            box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Ensure header stays on top within main wrapper */
+        .main-wrapper .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: linear-gradient(90deg, rgba(12, 20, 69, 0.95) 0%, rgba(26, 35, 126, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Ensure main wrapper handles background */
+        .main-wrapper {
+            background: linear-gradient(135deg, #0c1445 0%, #1a237e 50%, #283593 100%);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            overflow: visible;
+        }
+
+        /* Fix main content layout and Z-INDEX */
+        .main-wrapper .main-content {
+            padding-top: 40px;
+            padding-bottom: 80px; /* Add extra breathing room bottom */
+            height: auto;
+            min-height: auto;
+            align-items: center; 
+            display: flex; 
+            justify-content: space-between;
+            gap: 50px;
+            position: relative; /* Required for z-index */
+            z-index: 20; /* Ensure this is HIGHER than features section */
+        }
+
+        /* Ensure content left takes space */
+        .content-left {
+            flex: 1;
+            padding-right: 20px;
+            position: relative;
+            z-index: 21;
+        }
+
+        /* Ensure auth container doesn't shrink */
+        .auth-container {
+            width: 400px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 22; 
+        }
+
+        /* Features section should flow naturally */
+        .features-section {
+            position: relative;
+            z-index: 5; /* Lower than main content (20) */
+            background: #0d1117; 
+            margin-top: 0;
+            clear: both;
+        }
+        
+        /* Responsive fixes */
+        @media (max-width: 1024px) {
+            .main-wrapper .main-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 60px;
+                padding-top: 60px; /* More space on mobile to clear header */
+            }
+            
+            .auth-container {
+                width: 100%;
+                max-width: 450px;
+            }
+            
+            .content-left {
+                padding-right: 0;
+            }
+        }
+    </style>
 
     <script>
         // Enhanced cross-browser compatibility and error handling
@@ -664,6 +789,23 @@ function setupFormHandling() {
     // Login form now uses standard form submission - JavaScript handler disabled
     // The form uses POST action to /login with CSRF token
 }
+
+            function setupPasswordToggle() {
+                const togglePassword = document.querySelector('#togglePassword');
+                const password = document.querySelector('#loginPassword');
+
+                if (!togglePassword || !password) return;
+
+                togglePassword.addEventListener('click', function (e) {
+                    // toggle the type attribute
+                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                    password.setAttribute('type', type);
+                    
+                    // toggle the eye slash icon
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
             function setupSearchFunctionality() {
                 const searchBtn = document.querySelector('.search-btn');
                 const searchInput = document.querySelector('.search-box input');
@@ -943,6 +1085,7 @@ function setupFormHandling() {
                     setupParallaxEffects();
                     setupSearchFunctionality();
                     createProfessionalBackground();
+                    setupPasswordToggle();
                 } catch (error) {
                     console.error('App initialization error:', error);
                 }
@@ -965,6 +1108,334 @@ function setupFormHandling() {
             }
 
         })();
+    </script>
+
+    <!-- Hero Section Styles -->
+    <style>
+        /* Hero Landing Section */
+        .hero-landing {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            z-index: 100;
+        }
+        
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .logo-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60vw;
+            height: 60vw;
+            max-width: 600px;
+            max-height: 600px;
+            opacity: 0.08;
+            animation: logoFloat 8s ease-in-out infinite, logoPulse 4s ease-in-out infinite;
+        }
+        
+        .logo-watermark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: blur(2px);
+        }
+        
+        .gradient-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(88, 166, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 40%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
+                linear-gradient(135deg, rgba(12, 20, 69, 0.9) 0%, rgba(26, 35, 126, 0.9) 50%, rgba(40, 53, 147, 0.9) 100%);
+            z-index: 2;
+        }
+        
+        .animated-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: linear-gradient(135deg, #58a6ff, #f59e0b);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat 15s linear infinite;
+        }
+        
+        .particle:nth-child(even) {
+            background: linear-gradient(135deg, #f59e0b, #8b5cf6);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .hero-logo-animated {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 30px;
+            animation: logoEnter 1.5s ease-out, logoBreathe 3s ease-in-out infinite 1.5s;
+        }
+        
+        .hero-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 30px rgba(88, 166, 255, 0.4));
+        }
+        
+        .hero-title {
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -2px;
+            animation: titleReveal 1s ease-out 0.3s both;
+        }
+        
+        .title-candi {
+            color: #ffffff;
+            text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .title-hire {
+            background: linear-gradient(135deg, #58a6ff, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 5s ease-in-out infinite;
+            background-size: 200% 200%;
+        }
+        
+        .hero-tagline {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: #58a6ff;
+            letter-spacing: 8px;
+            font-weight: 600;
+            margin: 15px 0;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: rgba(255, 255, 255, 0.7);
+            margin: 10px 0 0;
+            animation: fadeInUp 1s ease-out 0.9s both;
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            width: fit-content;
+            z-index: 10;
+            cursor: pointer;
+            text-align: center;
+            animation: fadeInUp 1s ease-out 1.2s both;
+            transition: transform 0.3s ease;
+        }
+        
+        .scroll-indicator:hover {
+            transform: scale(1.1);
+        }
+        
+        .scroll-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+        
+        .scroll-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+        
+        .scroll-arrow i {
+            color: #58a6ff;
+            font-size: 1.2rem;
+            animation: scrollBounce 1.5s ease-in-out infinite;
+            opacity: 0.6;
+        }
+        
+        .scroll-arrow i:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .scroll-arrow i:nth-child(2) {
+            animation-delay: 0.15s;
+            opacity: 0.4;
+        }
+        
+        .scroll-arrow i:nth-child(3) {
+            animation-delay: 0.3s;
+            opacity: 0.2;
+        }
+        
+        /* Hero Animations */
+        @keyframes logoFloat {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            25% { transform: translate(-50%, -52%) rotate(2deg) scale(1.02); }
+            50% { transform: translate(-50%, -50%) rotate(0deg) scale(1.05); }
+            75% { transform: translate(-50%, -48%) rotate(-2deg) scale(1.02); }
+        }
+        
+        @keyframes logoPulse {
+            0%, 100% { opacity: 0.08; }
+            50% { opacity: 0.12; }
+        }
+        
+        @keyframes logoEnter {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        
+        @keyframes logoBreathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes titleReveal {
+            0% { opacity: 0; transform: translateY(30px); letter-spacing: 20px; }
+            100% { opacity: 1; transform: translateY(0); letter-spacing: -2px; }
+        }
+        
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes scrollBounce {
+            0%, 100% { transform: translateY(0); opacity: 0.6; }
+            50% { transform: translateY(8px); opacity: 1; }
+        }
+        
+        @keyframes particleFloat {
+            0% { 
+                transform: translateY(100vh) rotate(0deg); 
+                opacity: 0; 
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { 
+                transform: translateY(-100vh) rotate(720deg); 
+                opacity: 0; 
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-logo-animated {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .scroll-indicator {
+                bottom: 20px;
+            }
+            
+            .logo-watermark {
+                width: 80vw;
+                height: 80vw;
+            }
+        }
+    </style>
+
+    <!-- Hero Section JavaScript -->
+    <script>
+        // Create animated particles
+        function createParticles() {
+            const container = document.getElementById('particlesContainer');
+            if (!container) return;
+            
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particle.style.width = (4 + Math.random() * 4) + 'px';
+                particle.style.height = particle.style.width;
+                container.appendChild(particle);
+            }
+        }
+        
+        // Smooth scroll to main content
+        function scrollToContent() {
+            const heroSection = document.getElementById('heroLanding');
+            if (heroSection) {
+                const scrollTarget = heroSection.offsetHeight;
+                window.scrollTo({
+                    top: scrollTarget,
+                    behavior: 'smooth'
+                });
+            }
+        }
+        
+        // Hide hero on scroll (optional parallax effect)
+        function setupHeroParallax() {
+            const hero = document.getElementById('heroLanding');
+            if (!hero) return;
+            
+            window.addEventListener('scroll', function() {
+                const scrolled = window.pageYOffset;
+                const heroHeight = hero.offsetHeight;
+                
+                if (scrolled < heroHeight) {
+                    const opacity = 1 - (scrolled / heroHeight);
+                    const scale = 1 + (scrolled / heroHeight) * 0.2;
+                    
+                    hero.style.opacity = opacity;
+                    hero.querySelector('.hero-content').style.transform = `scale(${scale}) translateY(${scrolled * 0.5}px)`;
+                }
+            });
+        }
+        
+        // Initialize hero animations
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            setupHeroParallax();
+        });
     </script>
 </body>
 </html>

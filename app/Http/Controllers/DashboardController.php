@@ -36,6 +36,7 @@ class DashboardController extends Controller
     public function company()
     {
         $companyId = session('user_id');
+        $company = Company::find($companyId);
 
         $jobs = JobPosting::where('CompanyID', $companyId)->latest()->get();
         $applications = JobApplication::whereHas('job', function ($q) use ($companyId) {
@@ -43,7 +44,15 @@ class DashboardController extends Controller
         })->latest()->get();
         $interviews = Interview::where('CompanyID', $companyId)->latest()->get();
 
-        return view('company.dashboard', compact('jobs', 'applications', 'interviews'));
+        // Variables expected by the view
+        $companyName = $company->CompanyName ?? session('company_name', 'Company');
+        $companyLogo = $company && $company->Logo ? asset($company->Logo) : null;
+        $sessionCompanyId = $companyId;
+
+        return view('company.dashboard', compact(
+            'jobs', 'applications', 'interviews',
+            'companyName', 'companyLogo', 'companyId'
+        ));
     }
 
     // ---------------- ADMIN DASHBOARD ---------------- //

@@ -1,6 +1,3 @@
-@extends('layouts.app')
-
-@section('content')
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -19,56 +16,56 @@
                 <span class="candi">Candi</span><span class="hire">Hire</span>
             </div>
             
+            <!-- Welcome Section -->
             <div class="welcome-section" style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border);">
-                 <div style="display: flex; align-items: center; gap: 10px;">
-                     <div id="candidateAvatar" class="avatar-placeholder">
-                         <span class="avatar-initials">{{ strtoupper(substr(session('candidate_name', 'User'), 0, 1)) }}</span>
-                     </div>
-                     <div>
-                         <div style="color: var(--text-primary); font-weight: 600; font-size: 14px;">Welcome back!</div>
-                         <div id="candidateNameDisplay" style="color: var(--text-secondary); font-size: 12px;">{{ session('candidate_name', 'User') }}</div>
-                     </div>
-                 </div>
-                 <button id="editProfileBtn" class="edit-profile-btn" style="width: 100%; margin-top: 10px;">
-                     <i class="fas fa-user-edit"></i> Edit Profile
-                 </button>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Main menu</div>
-                <div class="nav-item" onclick="window.location.href='{{ url('candidate/dashboard') }}'">
-                    <i class="fas fa-home"></i>
-                    <span>News feed</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('cv-builder') }}'">
-                    <i class="fas fa-file-alt"></i>
-                    <span>CV builder</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('application-status') }}'">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Application status</span>
-                </div>
-            </div>
-             <div class="nav-section">
-                <div class="nav-section-title">Interviews & Exams</div>
-                <div class="nav-item active">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>Interview schedule</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('attend-exam') }}'">
-                    <i class="fas fa-pencil-alt"></i>
-                    <span>Attend Exam</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div id="candidateAvatar" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; {{ $candidateProfilePicture ? 'background-image: url(' . $candidateProfilePicture . '); background-size: cover; background-position: center;' : 'background: linear-gradient(135deg, var(--accent), var(--accent-secondary));' }}">
+                        {{ $candidateProfilePicture ? '' : strtoupper(substr($candidateName ?? 'U', 0, 1)) }}
+                    </div>
+                    <div>
+                        <div style="color: var(--text-primary); font-weight: 600; font-size: 14px;">Welcome back!</div>
+                        <div id="candidateNameDisplay" style="color: var(--text-secondary); font-size: 12px;">{{ $candidateName ?? 'User' }}</div>
+                    </div>
                 </div>
             </div>
             
-             <div class="logout-container">
-                 <button id="themeToggleBtn" class="theme-toggle-btn" title="Switch to Light Mode">
-                     <i class="fas fa-moon" id="themeIcon"></i>
-                     <span id="themeText">Dark Mode</span>
-                 </button>
-                 <button id="logoutBtn" class="logout-btn" onclick="window.location.href='{{ route('logout') }}'">
-                     <i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout
-                 </button>
+            <!-- Main Menu Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">Main menu</div>
+                <a href="{{ url('/candidate/dashboard') }}" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>News feed</span>
+                </a>
+                <a href="{{ url('/cv/builder') }}" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>CV builder</span>
+                </a>
+                <a href="{{ url('/candidate/applications') }}" class="nav-item">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Application status</span>
+                </a>
+            </div>
+            
+            <!-- Interviews & Exams Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">Interviews & Exams</div>
+                <a href="{{ url('/interview/schedule') }}" class="nav-item active">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Interview schedule</span>
+                </a>
+                <a href="{{ url('/exam/attend') }}" class="nav-item">
+                    <i class="fas fa-pencil-alt"></i>
+                    <span>Attend Exam</span>
+                </a>
+            </div>
+
+            <!-- Logout -->
+            <div class="logout-container">
+                <button id="themeToggleBtn" class="theme-toggle-btn" title="Switch to Light Mode">
+                    <i class="fas fa-moon-stars" id="themeIcon"></i>
+                    <span id="themeText">Light Mode</span>
+                </button>
+                <a href="{{ url('/logout') }}" class="logout-btn" style="text-decoration: none; display: flex; justify-content: center; align-items: center;"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
             </div>
         </div>
 
@@ -370,17 +367,36 @@
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             applyTheme(newTheme);
             updateThemeButton(newTheme);
+            
+            // Add smooth transition effect
+            document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+            setTimeout(() => {
+                document.body.style.transition = '';
+            }, 300);
         }
 
         function updateThemeButton(theme) {
             const icon = document.getElementById('themeIcon');
             const text = document.getElementById('themeText');
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            
+            // Add theme data attribute for CSS styling
+            if (themeToggleBtn) {
+                themeToggleBtn.setAttribute('data-theme', theme);
+            }
+            
             if (theme === 'dark') {
-                icon.className = 'fas fa-sun';
+                icon.className = 'fas fa-moon-stars';
                 text.textContent = 'Light Mode';
+                if (themeToggleBtn) {
+                    themeToggleBtn.title = 'Switch to Light Mode';
+                }
             } else {
-                icon.className = 'fas fa-moon';
+                icon.className = 'fas fa-moon-stars';
                 text.textContent = 'Dark Mode';
+                if (themeToggleBtn) {
+                    themeToggleBtn.title = 'Switch to Dark Mode';
+                }
             }
         }
 
@@ -391,4 +407,3 @@
     </script>
 </body>
 </html>
-@endsection

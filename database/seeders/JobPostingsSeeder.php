@@ -18,7 +18,7 @@ class JobPostingsSeeder extends Seeder
             $company = Company::create([
                 'CompanyName' => 'Tech Solutions Inc.',
                 'Industry' => 'Technology',
-                'CompanySize' => '50-200',
+                'CompanySize' => '51-200',
                 'Email' => 'hr@techsolutions.com',
                 'PhoneNumber' => '+880 1234567890',
                 'CompanyDescription' => 'Leading technology company specializing in software development and IT solutions.',

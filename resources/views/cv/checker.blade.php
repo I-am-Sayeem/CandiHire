@@ -17,51 +17,68 @@
                 <span class="candi">Candi</span><span class="hire">Hire</span>
             </div>
             
-            <div class="nav-section">
-                <div class="nav-section-title">Overview</div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/dashboard') }}'">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/applications') }}'">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Applications</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/exams') }}'">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Exams</span>
+            <!-- Welcome Section -->
+            <div class="welcome-section" style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div id="companyLogo" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; {{ isset($companyLogo) && $companyLogo ? 'background-image: url(' . $companyLogo . '); background-size: cover; background-position: center;' : 'background: linear-gradient(135deg, var(--accent-2), #e67e22);' }}">
+                        {{ isset($companyLogo) && $companyLogo ? '' : strtoupper(substr($companyName ?? 'C', 0, 1)) }}
+                    </div>
+                    <div>
+                        <div style="color: var(--text-primary); font-weight: 600; font-size: 14px;">Welcome back!</div>
+                        <div id="companyNameDisplay" style="color: var(--text-secondary); font-size: 12px;">{{ $companyName ?? 'Company' }}</div>
+                    </div>
                 </div>
             </div>
-
+            
+            <!-- Main Menu Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">Main menu</div>
+                <a href="{{ url('/company/jobs') }}" class="nav-item">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Job Posts</span>
+                </a>
+                <a href="{{ url('/cv/checker') }}" class="nav-item active">
+                    <i class="fas fa-file-alt"></i>
+                    <span>CV Checker</span>
+                </a>
+                <a href="{{ url('/company/dashboard') }}" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Candidate Feed</span>
+                </a>
+            </div>
+            
+            <!-- Recruitment Section -->
             <div class="nav-section">
                 <div class="nav-section-title">Recruitment</div>
-                <div class="nav-item " onclick="window.location.href='{{ url('ai-matching') }}'">
+                <a href="{{ url('/company/exams/create') }}" class="nav-item">
+                    <i class="fas fa-pencil-alt"></i>
+                    <span>Create Exam</span>
+                </a>
+                <a href="{{ url('/company/interviews') }}" class="nav-item">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Interviews</span>
+                </a>
+                <a href="{{ url('/company/applications') }}" class="nav-item">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>View Applications</span>
+                </a>
+                <a href="{{ url('/company/mcq-results') }}" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>View MCQ Results</span>
+                </a>
+                <a href="{{ url('/company/ai-matching') }}" class="nav-item">
                     <i class="fas fa-robot"></i>
                     <span>AI Matching</span>
-                </div>
-                <div class="nav-item active">
-                    <i class="fas fa-check-double"></i>
-                    <span>CV Checker</span>
-                </div>
-                 <div class="nav-item" onclick="window.location.href='{{ url('company/interviews') }}'">
-                    <i class="fas fa-video"></i>
-                    <span>Interviews</span>
-                </div>
+                </a>
             </div>
 
-            <div class="nav-section">
-                <div class="nav-section-title">Account</div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/profile') }}'">
-                    <i class="fas fa-building"></i>
-                    <span>Company Profile</span>
-                </div>
-                 <form action="{{ route('logout') }}" method="POST" id="logout-form">
-                    @csrf
-                    <div class="nav-item" onclick="document.getElementById('logout-form').submit()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </div>
-                </form>
+            <!-- Logout -->
+            <div class="logout-container">
+                <button id="themeToggleBtn" class="theme-toggle-btn" title="Switch to Light Mode">
+                    <i class="fas fa-moon-stars" id="themeIcon"></i>
+                    <span id="themeText">Light Mode</span>
+                </button>
+                <a href="{{ url('/logout') }}" class="logout-btn" style="text-decoration: none; display: flex; justify-content: center; align-items: center;"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
             </div>
         </div>
 
@@ -173,12 +190,6 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         let uploadedFiles = [];
         let currentProcessingId = null;
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            setupDragAndDrop();
-            setupSkillsInput();
-        });
 
         // Drag & Drop Handling
         function setupDragAndDrop() {
@@ -297,49 +308,121 @@
         }
 
         // Process Logic
-        function processCVs() {
+        async function processCVs() {
             const jobPosition = document.getElementById('jobPosition').value;
-             if (!jobPosition) {
+            if (!jobPosition) {
                 showToast('Please enter a job position.', 'error');
+                return;
+            }
+            
+            if (uploadedFiles.length === 0) {
+                showToast('Please upload CV files first.', 'error');
                 return;
             }
             
             document.getElementById('loadingAnimation').style.display = 'block';
             document.getElementById('processBtn').disabled = true;
 
-            // Simulate parsing and processing logic via generic backend route interaction or direct mock
-            // In migration, we assume either we point to the old handler logic or a new route.
-            // For now, let's simulate a success to demonstrate the UI flow as requested by the user objective pattern.
-            
-            setTimeout(() => {
-                // Mock results for now as backend logic porting is separate
-                const mockCandidates = uploadedFiles.map((file, i) => ({
-                    id: i + 1,
-                    name: "Candidate " + (i + 1),
-                    email: "candidate" + (i + 1) + "@example.com",
-                    phone: "+1234567890",
-                    location: "Dhaka",
-                    experienceYears: Math.floor(Math.random() * 5) + 1,
-                    skills: ["PHP", "JavaScript", "HTML"],
-                    match: Math.floor(Math.random() * 40) + 60,
-                    fileName: file.name
-                }));
+            try {
+                // Step 1: Upload files
+                const formData = new FormData();
+                uploadedFiles.forEach(file => {
+                    formData.append('cvs[]', file);
+                });
+                formData.append('jobPosition', jobPosition);
+                formData.append('experienceLevel', document.getElementById('experienceLevel').value);
+                formData.append('requiredSkills', getRequiredSkills().join(','));
+                formData.append('customCriteria', document.getElementById('customCriteria').value);
+
+                const uploadResponse = await fetch('/api/cv/upload', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: formData
+                });
+
+                const uploadResult = await uploadResponse.json();
                 
-                displayCandidates(mockCandidates);
+                if (!uploadResult.success) {
+                    throw new Error(uploadResult.message || 'Upload failed');
+                }
+
+                currentProcessingId = uploadResult.processingId;
+                showToast(`${uploadResult.uploadedFiles.length} files uploaded. Processing...`, 'success');
+
+                // Step 2: Process CVs
+                const processResponse = await fetch('/api/cv/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        processingId: currentProcessingId
+                    })
+                });
+
+                const processResult = await processResponse.json();
+                
+                if (!processResult.success) {
+                    throw new Error(processResult.message || 'Processing failed');
+                }
+
+                // Display candidates
+                displayCandidates(processResult.candidates);
+                showToast(processResult.message, 'success');
+                
+            } catch (error) {
+                console.error('CV Processing Error:', error);
+                showToast(error.message || 'An error occurred', 'error');
+            } finally {
                 document.getElementById('loadingAnimation').style.display = 'none';
                 document.getElementById('processBtn').disabled = false;
-                currentProcessingId = 'mock_id_' + Date.now();
-                showToast('CVs processed successfully!', 'success');
-            }, 2000);
+            }
         }
         
-        function applyFilters() {
-            if(!currentProcessingId) {
-                 showToast('Please process CVs first.', 'error');
-                 return;
+        async function applyFilters() {
+            if (!currentProcessingId) {
+                showToast('Please process CVs first.', 'error');
+                return;
             }
-            // In a real app, this would re-fetch/filter based on current criteria.
-            showToast('Filters applied!', 'success');
+            
+            const btn = document.querySelector('.apply-filters-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Applying...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/cv/filter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        processingId: currentProcessingId,
+                        requiredSkills: getRequiredSkills().join(','),
+                        experienceLevel: document.getElementById('experienceLevel').value,
+                        minMatch: 0
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayCandidates(result.candidates);
+                    showToast('Filters applied successfully!', 'success');
+                } else {
+                    showToast(result.message || 'Filter failed', 'error');
+                }
+            } catch (error) {
+                console.error('Filter Error:', error);
+                showToast('An error occurred while filtering.', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         function displayCandidates(candidates) {
@@ -361,18 +444,24 @@
             candidates.forEach(c => {
                 const card = document.createElement('div');
                 card.className = 'candidate-card';
+                const skills = Array.isArray(c.skills) ? c.skills : [];
+                const skillsHtml = skills.length > 0 
+                    ? skills.slice(0, 5).map(s => `<span class="skill-tag">${s}</span>`).join('') 
+                    : '<span style="color: var(--text-secondary); font-size: 12px;">No skills detected</span>';
+                
                 card.innerHTML = `
                     <div class="candidate-header">
-                        <div class="candidate-name">${c.name}</div>
-                        <div class="match-percentage">${c.match}% Match</div>
+                        <div class="candidate-name">${c.name || 'Unknown'}</div>
+                        <div class="match-percentage" style="background: ${c.match >= 70 ? 'linear-gradient(135deg, var(--success), #2ea043)' : c.match >= 40 ? 'linear-gradient(135deg, var(--accent-1), var(--accent-hover))' : 'linear-gradient(135deg, var(--danger), #d03f39)'}">${c.match || 0}% Match</div>
                     </div>
                     <div class="candidate-details">
-                         <div class="candidate-detail"><i class="fas fa-briefcase"></i> ${c.experienceYears} Years</div>
-                         <div class="candidate-detail"><i class="fas fa-map-marker-alt"></i> ${c.location}</div>
+                         <div class="candidate-detail"><i class="fas fa-briefcase"></i> ${c.experienceYears || 0} Years</div>
+                         <div class="candidate-detail"><i class="fas fa-map-marker-alt"></i> ${c.location || 'Unknown'}</div>
                     </div>
                     <div class="candidate-skills">
                         <div class="skills-tags">
-                            ${c.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                            ${skillsHtml}
+                            ${skills.length > 5 ? `<span class="skill-tag" style="background: var(--accent-1); color: white;">+${skills.length - 5} more</span>` : ''}
                         </div>
                     </div>
                 `;
@@ -383,35 +472,80 @@
         
         function showCandidateDetails(c) {
              const container = document.getElementById('candidateContactInfo');
+             const skills = Array.isArray(c.skills) ? c.skills : [];
+             
              container.innerHTML = `
                 <div class="contact-info-card" style="animation: slideInUp 0.3s ease-out;">
                     <div class="contact-header">
-                        <h4 class="contact-name">${c.name}</h4>
-                        <div class="contact-status">Contact Information</div>
+                        <h4 class="contact-name">${c.name || 'Unknown Candidate'}</h4>
+                        <div class="contact-status" style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: ${c.match >= 70 ? 'var(--success)' : c.match >= 40 ? 'var(--accent-1)' : 'var(--danger)'}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${c.match || 0}% Match</span>
+                            <span style="color: ${c.extractionStatus === 'success' ? 'var(--success)' : 'var(--warning)'}; font-size: 11px;">
+                                <i class="fas fa-${c.extractionStatus === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                                ${c.extractionStatus === 'success' ? 'Parsed Successfully' : 'Partial Data'}
+                            </span>
+                        </div>
                     </div>
                     <div class="contact-details-grid">
                         <div class="contact-detail">
                             <div class="contact-icon"><i class="fas fa-envelope"></i></div>
                             <div class="contact-content">
                                 <div class="contact-label">Email</div>
-                                <div class="contact-value">${c.email}</div>
+                                <div class="contact-value">${c.email || 'Not found'}</div>
                             </div>
                         </div>
                          <div class="contact-detail">
                             <div class="contact-icon"><i class="fas fa-phone"></i></div>
                             <div class="contact-content">
                                 <div class="contact-label">Phone</div>
-                                <div class="contact-value">${c.phone}</div>
+                                <div class="contact-value">${c.phone || 'Not found'}</div>
                             </div>
                         </div>
+                        ${c.linkedin ? `
+                        <div class="contact-detail">
+                            <div class="contact-icon" style="background: #0077b5;"><i class="fab fa-linkedin-in"></i></div>
+                            <div class="contact-content">
+                                <div class="contact-label">LinkedIn</div>
+                                <div class="contact-value"><a href="${c.linkedin}" target="_blank" style="color: var(--accent-1);">View Profile</a></div>
+                            </div>
+                        </div>` : ''}
+                        <div class="contact-detail">
+                            <div class="contact-icon"><i class="fas fa-briefcase"></i></div>
+                            <div class="contact-content">
+                                <div class="contact-label">Experience</div>
+                                <div class="contact-value">${c.experienceYears || 0} Years</div>
+                            </div>
+                        </div>
+                        ${c.education ? `
+                        <div class="contact-detail">
+                            <div class="contact-icon"><i class="fas fa-graduation-cap"></i></div>
+                            <div class="contact-content">
+                                <div class="contact-label">Education</div>
+                                <div class="contact-value">${c.education}</div>
+                            </div>
+                        </div>` : ''}
                         <div class="contact-detail">
                             <div class="contact-icon"><i class="fas fa-file-pdf"></i></div>
                             <div class="contact-content">
                                 <div class="contact-label">Source File</div>
-                                <div class="contact-value">${c.fileName}</div>
+                                <div class="contact-value">${c.fileName || 'Unknown'}</div>
                             </div>
                         </div>
                     </div>
+                    ${skills.length > 0 ? `
+                    <div class="contact-skills" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border);">
+                        <div class="skills-header" style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">Skills</div>
+                        <div class="skills-tags">
+                            ${skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                        </div>
+                    </div>` : ''}
+                    ${c.summary ? `
+                    <div class="contact-summary" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border);">
+                        <div class="skills-header" style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">Summary</div>
+                        <div style="color: var(--text-primary); font-size: 14px; line-height: 1.5; background-color: var(--bg-primary); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                            ${c.summary}
+                        </div>
+                    </div>` : ''}
                 </div>
              `;
         }
@@ -425,6 +559,54 @@
                 toast.style.transform = 'translateX(150%)';
             }, 3000);
         }
+
+        // Theme Toggle Functions
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('candihire-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            const btn = document.getElementById('themeToggleBtn');
+            
+            if (btn) btn.setAttribute('data-theme', theme);
+            
+            if (theme === 'dark') {
+                icon.className = 'fas fa-moon-stars';
+                text.textContent = 'Light Mode';
+            } else {
+                icon.className = 'fas fa-moon-stars';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('candihire-theme', newTheme);
+            updateThemeButton(newTheme);
+            
+            document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+            setTimeout(() => {
+                document.body.style.transition = '';
+            }, 300);
+        }
+
+        // Initialize theme on load
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+            setupSkillsInput();
+            initializeTheme();
+            
+            const themeBtn = document.getElementById('themeToggleBtn');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', toggleTheme);
+            }
+        });
     </script>
 </body>
 </html>

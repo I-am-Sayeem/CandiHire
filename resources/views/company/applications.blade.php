@@ -20,59 +20,56 @@
             <!-- Welcome Section -->
             <div class="welcome-section" style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border);">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div id="companyLogo" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; {{ $companyLogo ? 'background-image: url(' . $companyLogo . '); background-size: cover; background-position: center;' : 'background: linear-gradient(135deg, var(--accent-2), #e67e22);' }}">
-                        {{ $companyLogo ? '' : strtoupper(substr($companyName, 0, 1)) }}
+                    <div id="companyLogo" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; {{ isset($companyLogo) && $companyLogo ? 'background-image: url(' . $companyLogo . '); background-size: cover; background-position: center;' : 'background: linear-gradient(135deg, var(--accent-2), #e67e22);' }}">
+                        {{ isset($companyLogo) && $companyLogo ? '' : strtoupper(substr($companyName ?? 'C', 0, 1)) }}
                     </div>
                     <div>
                         <div style="color: var(--text-primary); font-weight: 600; font-size: 14px;">Welcome back!</div>
-                        <div id="companyNameDisplay" style="color: var(--text-secondary); font-size: 12px;">{{ $companyName }}</div>
+                        <div id="companyNameDisplay" style="color: var(--text-secondary); font-size: 12px;">{{ $companyName ?? 'Company' }}</div>
                     </div>
                 </div>
-                <button id="editCompanyProfileBtn" style="background: var(--accent-2); color: white; border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; cursor: pointer; margin-top: 10px; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='#e67e22'" onmouseout="this.style.background='var(--accent-2)'">
-                    <i class="fas fa-building" style="margin-right: 6px;"></i>Edit Profile
-                </button>
             </div>
             
             <!-- Main Menu Section -->
             <div class="nav-section">
                 <div class="nav-section-title">Main menu</div>
-                <div class="nav-item" onclick="window.location.href='{{ url('job-posts') }}'">
+                <a href="{{ url('/company/jobs') }}" class="nav-item">
                     <i class="fas fa-briefcase"></i>
                     <span>Job Posts</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('cv-checker') }}'">
+                </a>
+                <a href="{{ url('/cv/checker') }}" class="nav-item">
                     <i class="fas fa-file-alt"></i>
                     <span>CV Checker</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/dashboard') }}'">
+                </a>
+                <a href="{{ url('/company/dashboard') }}" class="nav-item">
                     <i class="fas fa-users"></i>
                     <span>Candidate Feed</span>
-                </div>
+                </a>
             </div>
             
             <!-- Recruitment Section -->
             <div class="nav-section">
                 <div class="nav-section-title">Recruitment</div>
-                <div class="nav-item" onclick="window.location.href='{{ url('create-exam') }}'">
+                <a href="{{ url('/company/exams/create') }}" class="nav-item">
                     <i class="fas fa-pencil-alt"></i>
                     <span>Create Exam</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('interviews') }}'">
+                </a>
+                <a href="{{ url('/company/interviews') }}" class="nav-item">
                     <i class="fas fa-user-tie"></i>
                     <span>Interviews</span>
-                </div>
-                <div class="nav-item active" onclick="window.location.href='{{ url('company/applications') }}'">
+                </a>
+                <a href="{{ url('/company/applications') }}" class="nav-item active">
                     <i class="fas fa-clipboard-list"></i>
                     <span>View Applications</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/mcq-results') }}'">
+                </a>
+                <a href="{{ url('/company/mcq-results') }}" class="nav-item">
                     <i class="fas fa-chart-bar"></i>
                     <span>View MCQ Results</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('ai-matching') }}'">
+                </a>
+                <a href="{{ url('/company/ai-matching') }}" class="nav-item">
                     <i class="fas fa-robot"></i>
                     <span>AI Matching</span>
-                </div>
+                </a>
             </div>
 
             <!-- Logout -->
@@ -81,7 +78,7 @@
                     <i class="fas fa-moon-stars" id="themeIcon"></i>
                     <span id="themeText">Light Mode</span>
                 </button>
-                <button id="logoutBtn" class="logout-btn" onclick="window.location.href='{{ route('logout') }}'"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</button>
+                <a href="{{ url('/logout') }}" class="logout-btn" style="text-decoration: none; display: flex; justify-content: center; align-items: center;"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
             </div>
         </div>
 

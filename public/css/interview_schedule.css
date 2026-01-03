@@ -39,7 +39,6 @@ body { background-color: var(--bg-primary); color: var(--text-primary); line-hei
     margin-bottom: 30px;
     display: flex;
     align-items: center;
-    gap: 12px;
     padding: 0 10px;
 }
 
@@ -49,7 +48,6 @@ body { background-color: var(--bg-primary); color: var(--text-primary); line-hei
 
 .logo .hire {
     color: var(--accent-secondary);
-    margin-left: -2px;
 }
 .nav-section { margin-bottom: 25px; }
 .nav-section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px; padding: 0 10px; letter-spacing: 0.5px; }

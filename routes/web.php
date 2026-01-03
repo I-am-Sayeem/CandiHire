@@ -77,6 +77,12 @@ Route::prefix('company')->name('company.')->group(function () {
     Route::post('/exams/create', [ExamController::class, 'store'])->name('exams.store');
     Route::post('/exams/assign', [ExamController::class, 'assign'])->name('exams.assign');
     Route::get('/exams/assignments/{jobId}', [ExamController::class, 'jobExamAssignments'])->name('exams.assignments');
+    Route::get('/exams/manual-creation', [ExamController::class, 'manualCreation'])->name('exams.manual-creation');
+    Route::get('/exams/auto-creation', [ExamController::class, 'autoCreation'])->name('exams.auto-creation');
+    Route::post('/exams/manual-store', [ExamController::class, 'storeManual'])->name('exams.manual-store');
+    Route::post('/exams/auto-generate', [ExamController::class, 'storeAuto'])->name('exams.auto-generate');
+    Route::get('/exams/{id}/edit', [ExamController::class, 'edit'])->name('exams.edit');
+    Route::post('/exams/{id}/update', [ExamController::class, 'update'])->name('exams.update');
     Route::get('/mcq-results', [CompanyController::class, 'mcqResults'])->name('mcq-results');
     
     // Interviews
@@ -123,14 +129,14 @@ Route::post('/jobs/apply/{id}', [ApplicationController::class, 'apply'])->name('
 // ============================================================
 //                       EXAM ROUTES
 // ============================================================
-Route::get('/exam/attend', fn() => view('exam.attend'))->name('exam.attend');
+Route::get('/exam/attend', [ExamController::class, 'candidateExams'])->name('exam.attend');
 Route::get('/exam/{scheduleId}', [ExamController::class, 'takeExam'])->name('exam.take');
 Route::post('/exam/{scheduleId}/submit', [ExamController::class, 'submitExam'])->name('exam.submit');
 
 // ============================================================
 //                    INTERVIEW ROUTES
 // ============================================================
-Route::get('/interview/schedule', fn() => view('interview.schedule'))->name('interview.schedule');
+Route::get('/interview/schedule', [InterviewController::class, 'candidateSchedule'])->name('interview.schedule');
 
 // ============================================================
 //                       CV ROUTES
@@ -147,6 +153,13 @@ Route::prefix('cv')->name('cv.')->group(function () {
 Route::get('/messages', [MessagingController::class, 'index'])->name('messages.index');
 Route::get('/messages/{conversationId}', [MessagingController::class, 'open'])->name('messages.open');
 Route::post('/messages/send', [MessagingController::class, 'send'])->name('messages.send');
+Route::post('/api/messages/send', [MessagingController::class, 'apiSendMessage'])->name('api.messages.send');
+Route::get('/api/messages/unread-count', [MessagingController::class, 'apiGetUnreadCount'])->name('api.messages.unread-count');
+Route::get('/api/conversations', [MessagingController::class, 'apiListConversations'])->name('api.conversations.index');
+Route::get('/api/messages/{conversationId}', [MessagingController::class, 'apiGetMessages'])->name('api.messages.show');
+Route::post('/api/typing/set', [MessagingController::class, 'apiSetTypingStatus'])->name('api.typing.set');
+Route::get('/api/typing/{conversationId}', [MessagingController::class, 'apiGetTypingStatus'])->name('api.typing.get');
+
 
 // ============================================================
 //                   NOTIFICATION ROUTES
@@ -174,6 +187,26 @@ Route::post('/api/candidate-profile', [CandidateProfileController::class, 'updat
 //                    JOB POSTS API ROUTES
 // ============================================================
 Route::get('/api/job-posts', [JobController::class, 'apiIndex'])->name('api.job-posts.index');
+Route::post('/api/company/job/store', [JobController::class, 'apiStore'])->name('api.company.job.store');
+Route::get('/api/company/job/{id}', [JobController::class, 'apiShow'])->name('api.company.job.show');
+Route::post('/api/company/job/delete/{id}', [JobController::class, 'apiDelete'])->name('api.company.job.delete');
+Route::post('/api/company/job/update/{id}', [JobController::class, 'apiUpdate'])->name('api.company.job.update');
 Route::post('/api/job-applications', [ApplicationController::class, 'store'])->name('api.job-applications.store');
 Route::get('/api/company-profile/{id}', [CompanyController::class, 'apiShow'])->name('api.company-profile.show');
+Route::post('/api/company-profile/update', [CompanyController::class, 'apiUpdateProfile'])->name('api.company-profile.update');
 Route::post('/api/job-reports', [ComplaintController::class, 'storeJobReport'])->name('api.job-reports.store');
+Route::get('/api/job-seeking-posts', [JobSeekingController::class, 'index'])->name('api.job-seeking-posts.index');
+
+// ============================================================
+//                   INTERVIEW API ROUTES
+// ============================================================
+Route::get('/api/company/job-positions', [InterviewController::class, 'apiGetJobPositions'])->name('api.company.job-positions');
+Route::get('/api/company/candidates/{jobId}', [InterviewController::class, 'apiGetCandidates'])->name('api.company.candidates');
+Route::post('/api/company/interviews/schedule', [InterviewController::class, 'apiSchedule'])->name('api.company.interviews.schedule');
+
+// ============================================================
+//                   CV PROCESSING API ROUTES
+// ============================================================
+Route::post('/api/cv/upload', [App\Http\Controllers\CvProcessingController::class, 'upload'])->name('api.cv.upload');
+Route::post('/api/cv/process', [App\Http\Controllers\CvProcessingController::class, 'process'])->name('api.cv.process');
+Route::post('/api/cv/filter', [App\Http\Controllers\CvProcessingController::class, 'filter'])->name('api.cv.filter');

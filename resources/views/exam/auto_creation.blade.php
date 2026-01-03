@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <a href="{{ url('create-exam') }}" class="back-btn">
+        <a href="{{ url('company/exams/create') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i>
             Back to Exam Type Selection
         </a>
@@ -43,7 +43,7 @@
             </div>
         </div>
 
-        <form id="examForm" method="POST" action="{{ url('exams/auto-generate') }}">
+        <form id="examForm" method="POST" action="{{ url('company/exams/auto-generate') }}">
             @csrf
             <input type="hidden" name="job_id" value="{{ $jobId ?? '' }}">
             <input type="hidden" name="department" value="{{ $department ?? '' }}">

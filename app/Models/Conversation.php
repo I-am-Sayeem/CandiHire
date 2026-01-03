@@ -11,9 +11,9 @@ class Conversation extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'ParticipantOneID','ParticipantOneType',
-        'ParticipantTwoID','ParticipantTwoType',
-        'LastMessageID','LastUpdated'
+        'Participant1ID','Participant1Type',
+        'Participant2ID','Participant2Type',
+        'LastMessageID','LastMessageAt'
     ];
 
     public function messages() {

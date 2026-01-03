@@ -1,6 +1,3 @@
-@extends('layouts.app')
-
-@section('content')
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -20,53 +17,68 @@
                 <span class="candi">Candi</span><span class="hire">Hire</span>
             </div>
             
-            <div class="nav-section">
-                <div class="nav-section-title">Overview</div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/dashboard') }}'">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
+            <!-- Welcome Section -->
+            <div class="welcome-section" style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div id="companyLogo" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; {{ isset($companyLogo) && $companyLogo ? 'background-image: url(' . $companyLogo . '); background-size: cover; background-position: center;' : 'background: linear-gradient(135deg, var(--accent-2), #e67e22);' }}">
+                        {{ isset($companyLogo) && $companyLogo ? '' : strtoupper(substr($companyName ?? 'C', 0, 1)) }}
+                    </div>
+                    <div>
+                        <div style="color: var(--text-primary); font-weight: 600; font-size: 14px;">Welcome back!</div>
+                        <div id="companyNameDisplay" style="color: var(--text-secondary); font-size: 12px;">{{ $companyName ?? 'Company' }}</div>
+                    </div>
                 </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('job-post') }}'">
-                    <i class="fas fa-briefcase"></i>
-                    <span>Post a Job</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/applications') }}'">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Applications</span>
-                </div>
-                <div class="nav-item active">
-                    <i class="fas fa-user-tie"></i>
-                    <span>Interviews</span>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Assessment</div>
-                <div class="nav-item" onclick="window.location.href='{{ url('create-exam') }}'">
-                    <i class="fas fa-file-contract"></i>
-                    <span>Create Exam</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('exam-review') }}'">
-                    <i class="fas fa-clipboard-check"></i>
-                    <span>Review Exams</span>
-                </div>
-                <div class="nav-item" onclick="window.location.href='{{ url('company/mcq-results') }}'">
-                   <i class="fas fa-poll"></i>
-                   <span>MCQ Results</span>
-               </div>
             </div>
             
-             <div class="nav-section">
-                <div class="nav-section-title">Settings</div>
-                <!-- Theme toggle will be handled by JS -->
-                <div class="nav-item" id="themeToggleBtn">
-                    <i class="fas fa-moon" id="themeIcon"></i>
-                    <span id="themeText">Dark Mode</span>
-                </div>
-                 <div class="nav-item" onclick="window.location.href='{{ route('logout') }}'">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </div>
+            <!-- Main Menu Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">Main menu</div>
+                <a href="{{ url('/company/jobs') }}" class="nav-item">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Job Posts</span>
+                </a>
+                <a href="{{ url('/cv/checker') }}" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>CV Checker</span>
+                </a>
+                <a href="{{ url('/company/dashboard') }}" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Candidate Feed</span>
+                </a>
+            </div>
+            
+            <!-- Recruitment Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">Recruitment</div>
+                <a href="{{ url('/company/exams/create') }}" class="nav-item">
+                    <i class="fas fa-pencil-alt"></i>
+                    <span>Create Exam</span>
+                </a>
+                <a href="{{ url('/company/interviews') }}" class="nav-item active">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Interviews</span>
+                </a>
+                <a href="{{ url('/company/applications') }}" class="nav-item">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>View Applications</span>
+                </a>
+                <a href="{{ url('/company/mcq-results') }}" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>View MCQ Results</span>
+                </a>
+                <a href="{{ url('/company/ai-matching') }}" class="nav-item">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Matching</span>
+                </a>
+            </div>
+
+            <!-- Logout -->
+            <div class="logout-container">
+                <button id="themeToggleBtn" class="theme-toggle-btn" title="Switch to Light Mode">
+                    <i class="fas fa-moon-stars" id="themeIcon"></i>
+                    <span id="themeText">Light Mode</span>
+                </button>
+                <a href="{{ url('/logout') }}" class="logout-btn" style="text-decoration: none; display: flex; justify-content: center; align-items: center;"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
             </div>
         </div>
 
@@ -145,10 +157,69 @@
                 </div>
             </div>
 
-            <!-- Existing Interviews List could go here if part of the original requirement, 
-                 but the PHP file provided focused on scheduling logic and 'interview interface' hiding/showing. 
-                 The PHP file had placeholders for conducting an interview but they were set to display:none initially. 
-                 I'll preserve the 'Interview Interface' hidden block. -->
+            <!-- Scheduled Interviews Section -->
+            <div class="scheduled-interviews" style="margin-top: 24px;">
+                <div class="controls-header" style="background-color: var(--bg-secondary); border-radius: 12px 12px 0 0; padding: 20px 24px; border: 1px solid var(--border); border-bottom: none;">
+                    <h2 class="controls-title"><i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>Scheduled Interviews</h2>
+                    <span style="color: var(--text-secondary); font-size: 14px;">{{ count($interviews) }} interview(s)</span>
+                </div>
+                
+                @if(count($interviews) > 0)
+                <div class="interviews-list" style="background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 0 0 12px 12px; padding: 16px;">
+                    @foreach($interviews as $interview)
+                    <div class="interview-card" style="background-color: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">
+                                {{ strtoupper(substr($interview['CandidateName'], 0, 2)) }}
+                            </div>
+                            <div>
+                                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">{{ $interview['CandidateName'] }}</h4>
+                                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 2px;">{{ $interview['JobTitle'] }}</p>
+                                <p style="color: var(--text-secondary); font-size: 12px;">
+                                    <i class="fas fa-envelope" style="margin-right: 4px;"></i>{{ $interview['CandidateEmail'] }}
+                                </p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px;">
+                                <i class="fas fa-calendar" style="margin-right: 4px; color: var(--accent-1);"></i>
+                                {{ \Carbon\Carbon::parse($interview['ScheduledDate'])->format('M d, Y') }}
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 4px;">
+                                <i class="fas fa-clock" style="margin-right: 4px;"></i>
+                                {{ \Carbon\Carbon::parse($interview['ScheduledTime'])->format('h:i A') }}
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                                @if($interview['InterviewMode'] === 'virtual')
+                                    <span style="background-color: rgba(88, 166, 255, 0.2); color: var(--accent-1); padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                        <i class="fas fa-video"></i> Virtual
+                                    </span>
+                                    @if($interview['MeetingLink'])
+                                    <a href="{{ $interview['MeetingLink'] }}" target="_blank" style="color: var(--accent-1); font-size: 12px; text-decoration: none;">
+                                        <i class="fas fa-external-link-alt"></i> Join
+                                    </a>
+                                    @endif
+                                @else
+                                    <span style="background-color: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                        <i class="fas fa-building"></i> On-site
+                                    </span>
+                                @endif
+                                <span style="background-color: {{ $interview['Status'] === 'Scheduled' ? 'rgba(63, 185, 80, 0.2)' : 'rgba(139, 148, 158, 0.2)' }}; color: {{ $interview['Status'] === 'Scheduled' ? 'var(--success)' : 'var(--text-secondary)' }}; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                    {{ $interview['Status'] }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @else
+                <div style="background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 0 0 12px 12px; padding: 40px; text-align: center;">
+                    <i class="fas fa-calendar-times" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px;"></i>
+                    <p style="color: var(--text-secondary); font-size: 16px;">No interviews scheduled yet.</p>
+                    <p style="color: var(--text-secondary); font-size: 14px;">Select a job position and candidates above to schedule interviews.</p>
+                </div>
+                @endif
+            </div>
             
             <div id="interviewInterface" class="interview-interface">
                 <div class="interview-header">
@@ -296,32 +367,38 @@
             document.getElementById('interviewDate').min = minDate;
         }
 
-        // Mock loading job positions - Replace with actual AJAX call to Laravel route
-        function loadCompanyJobPositions() {
-             // Simulating API call
-             console.log('Loading job positions...');
-             // In a real scenario: fetch('/api/company/jobs') ...
-             // For now, let's mock some data to demonstrate functionality as per conversion task style
-             const mockJobs = [
-                 { JobID: 1, JobTitle: 'Software Engineer' },
-                 { JobID: 2, JobTitle: 'Product Manager' },
-                 { JobID: 3, JobTitle: 'UX Designer' }
-             ];
-             
-             companyJobPositions = mockJobs;
-             const select = document.getElementById('positionSelect');
-             
-             // Clear existing options except default
-             while (select.options.length > 1) {
-                select.remove(1);
-             }
+        // Load job positions from API
+        async function loadCompanyJobPositions() {
+            try {
+                console.log('Loading job positions...');
+                const response = await fetch('/api/company/job-positions');
+                const data = await response.json();
+                
+                if (data.success) {
+                    companyJobPositions = data.jobs;
+                    const select = document.getElementById('positionSelect');
+                    
+                    // Clear existing options except default
+                    while (select.options.length > 1) {
+                        select.remove(1);
+                    }
 
-             mockJobs.forEach(job => {
-                 const option = document.createElement('option');
-                 option.value = job.JobID;
-                 option.textContent = job.JobTitle;
-                 select.appendChild(option);
-             });
+                    data.jobs.forEach(job => {
+                        const option = document.createElement('option');
+                        option.value = job.JobID;
+                        option.textContent = job.JobTitle;
+                        select.appendChild(option);
+                    });
+                    
+                    if (data.jobs.length === 0) {
+                        select.innerHTML = '<option value="">-- No Active Job Positions --</option>';
+                    }
+                } else {
+                    console.error('Failed to load job positions:', data.message);
+                }
+            } catch (error) {
+                console.error('Error loading job positions:', error);
+            }
         }
 
         function handleInterviewMethodChange(event) {
@@ -368,29 +445,28 @@
             updateScheduleInterviewButton();
         }
 
-        function loadCandidatesForJob(jobId) {
+        async function loadCandidatesForJob(jobId) {
             const candidateList = document.getElementById('candidateList');
             candidateList.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading candidates...</div>';
             
-            // Mock candidates for demonstration
-            setTimeout(() => {
-                const mockCandidates = [
-                    { candidateId: 101, name: 'Alice Smith', email: 'alice@example.com', applicationDate: '2023-10-25', examScore: 85, passed: true },
-                    { candidateId: 102, name: 'Bob Johnson', email: 'bob@example.com', applicationDate: '2023-10-26', examScore: 92, passed: true },
-                    { candidateId: 103, name: 'Charlie Brown', email: 'charlie@example.com', applicationDate: '2023-10-27', examScore: 78, passed: true }
-                ];
+            try {
+                const response = await fetch(`/api/company/candidates/${jobId}`);
+                const data = await response.json();
 
                 candidateList.innerHTML = '';
-                if (mockCandidates.length > 0) {
-                    mockCandidates.forEach(candidate => {
+                if (data.success && data.candidates.length > 0) {
+                    data.candidates.forEach(candidate => {
                         const item = createCandidateItem(candidate);
                         candidateList.appendChild(item);
                     });
                 } else {
-                    candidateList.innerHTML = '<div style="text-align: center; padding: 20px;">No candidates found.</div>';
+                    candidateList.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);"><i class="fas fa-user-slash" style="font-size: 24px; margin-bottom: 10px;"></i><br>No candidates have applied to this position yet.</div>';
                 }
                 updateSelectAllButtons();
-            }, 500);
+            } catch (error) {
+                console.error('Error loading candidates:', error);
+                candidateList.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger);">Error loading candidates. Please try again.</div>';
+            }
         }
 
         function createCandidateItem(candidate) {
@@ -505,7 +581,7 @@
             section.style.display = canSchedule ? 'flex' : 'none';
         }
 
-        function scheduleInterview() {
+        async function scheduleInterview() {
             const btn = document.getElementById('scheduleInterviewBtn');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scheduling...';
@@ -521,15 +597,57 @@
                 interviewTime
             };
 
-            // Simulating API call
-            console.log('Scheduling interview with data:', data);
-            
-            setTimeout(() => {
-                alert('Interview Scheduled Successfully! Invitations sent.');
-                resetForm();
+            try {
+                const response = await fetch('/api/company/interviews/schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification(result.message, 'success');
+                    resetForm();
+                    // Reload page to show new interview in the list
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showNotification(result.message || 'Failed to schedule interview', 'error');
+                }
+            } catch (error) {
+                console.error('Error scheduling interview:', error);
+                showNotification('Network error. Please try again.', 'error');
+            } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-            }, 1000);
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 16px 24px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                background-color: ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--accent-1)'};
+            `;
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
 
         function resetForm() {
@@ -569,13 +687,10 @@
         }
 
         function updateThemeButton(theme) {
-            const icon = document.getElementById('themeIcon');
             const text = document.getElementById('themeText');
             if (theme === 'dark') {
-                icon.className = 'fas fa-sun';
                 text.textContent = 'Light Mode';
             } else {
-                icon.className = 'fas fa-moon';
                 text.textContent = 'Dark Mode';
             }
         }
@@ -584,7 +699,12 @@
             const btn = document.getElementById('themeToggleBtn');
             if (btn) btn.addEventListener('click', toggleTheme);
         }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            setupThemeToggle();
+        });
     </script>
 </body>
 </html>
-@endsection

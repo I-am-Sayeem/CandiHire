@@ -636,8 +636,10 @@
             <div class="sidebar-section">
                 <div class="section-title">Messages</div>
                 <div id="messagingSidebar">
-                    {{-- @include('messaging_ui') --}}
-                    {{-- Placeholder for messaging UI included via PHP --}}
+                    <a href="{{ url('/messages') }}" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; text-decoration: none; font-weight: 600; margin-top: 10px;">
+                        <i class="fas fa-comments"></i>
+                        <span>Messages</span>
+                    </a>
                 </div>
             </div>
 
@@ -813,14 +815,16 @@
             postDiv.dataset.jobId = post.JobID;
             
             // Get initials from company name (fallback)
-            const initials = post.CompanyName.split(' ').map(name => name[0]).join('').toUpperCase();
+            const companyName = post.CompanyName || 'Unknown';
+            const initials = companyName.split(' ').map(name => name[0] || '').join('').toUpperCase().slice(0, 2) || 'C';
             
             // Create avatar HTML - use company logo if available, otherwise use initials
             let avatarHtml = '';
-            if (post.Logo) {
-                avatarHtml = `<div class="post-avatar" style="background-image: url('${post.Logo}'); background-size: cover; background-position: center; color: transparent;">${initials}</div>`;
+            if (post.CompanyLogo && post.CompanyLogo.trim() !== '') {
+                avatarHtml = `<div class="post-avatar" style="background-image: url('${post.CompanyLogo}'); background-size: cover; background-position: center;"></div>`;
             } else {
-                avatarHtml = `<div class="post-avatar">${initials}</div>`;
+                // Add explicit inline styles to ensure text visibility
+                avatarHtml = `<div class="post-avatar" style="display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">${initials}</div>`;
             }
             
             // Format time
@@ -891,11 +895,21 @@
         }
 
         function formatTimeAgo(dateString) {
+            if (!dateString) return 'Recently';
+            
             const now = new Date();
             const postDate = new Date(dateString);
+            
+            // Check if date is valid
+            if (isNaN(postDate.getTime())) {
+                return 'Recently';
+            }
+            
             const diffInSeconds = Math.floor((now - postDate) / 1000);
             
-            if (diffInSeconds < 60) {
+            if (diffInSeconds < 0) {
+                return 'just now';
+            } else if (diffInSeconds < 60) {
                 return 'just now';
             } else if (diffInSeconds < 3600) {
                 const minutes = Math.floor(diffInSeconds / 60);
@@ -903,9 +917,15 @@
             } else if (diffInSeconds < 86400) {
                 const hours = Math.floor(diffInSeconds / 3600);
                 return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-            } else {
+            } else if (diffInSeconds < 2592000) {
                 const days = Math.floor(diffInSeconds / 86400);
                 return `${days} day${days > 1 ? 's' : ''} ago`;
+            } else if (diffInSeconds < 31536000) {
+                const months = Math.floor(diffInSeconds / 2592000);
+                return `${months} month${months > 1 ? 's' : ''} ago`;
+            } else {
+                const years = Math.floor(diffInSeconds / 31536000);
+                return `${years} year${years > 1 ? 's' : ''} ago`;
             }
         }
 
@@ -1665,10 +1685,7 @@
         function closeCompanyDetailsPopup() { document.getElementById('companyDetailsPopup').style.display = 'none'; document.body.style.overflow = 'auto'; }
         function closeReportJobPopup() { document.getElementById('reportJobPopup').style.display = 'none'; document.body.style.overflow = 'auto'; }
         
-        function applyToJob(jobId) { alert('Apply to job ' + jobId); }
-        function openMessageDialog() { alert('Message dialog'); }
-        function viewCompanyProfile(id) { alert('View company ' + id); }
-        function reportJobPost() { alert('Report job'); }
+        // Note: applyToJob, openMessageDialog, viewCompanyProfile, reportJobPost are defined below with full implementations
 
         // Advanced Filter Setup
         function setupAdvancedFilters() {
@@ -2239,6 +2256,120 @@
             }
         }
 
+        // ==================== JOB APPLICATION FUNCTIONS ====================
+        
+        // Apply to job - opens the application popup
+        function applyToJob(jobId) {
+            console.log('Opening application popup for job:', jobId);
+            openJobApplicationPopup(jobId);
+        }
+
+        // Open job application popup
+        function openJobApplicationPopup(jobId) {
+            const popup = document.getElementById('jobApplicationPopup');
+            if (!popup) {
+                console.error('Job application popup not found');
+                return;
+            }
+            
+            // Set the job ID
+            document.getElementById('applicationJobId').value = jobId;
+            
+            // Clear previous values
+            document.getElementById('applicationCoverLetter').value = '';
+            document.getElementById('applicationNotes').value = '';
+            
+            // Show popup
+            popup.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close job application popup
+        function closeJobApplicationPopup() {
+            const popup = document.getElementById('jobApplicationPopup');
+            if (popup) {
+                popup.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Handle job application form submission
+        function setupJobApplicationForm() {
+            const form = document.getElementById('jobApplicationForm');
+            if (!form) return;
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitBtn = document.getElementById('submitApplication');
+                const originalBtnText = submitBtn.innerHTML;
+                
+                // Disable button and show loading
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                
+                const jobId = document.getElementById('applicationJobId').value;
+                const coverLetter = document.getElementById('applicationCoverLetter').value.trim();
+                const additionalNotes = document.getElementById('applicationNotes').value.trim();
+                
+                try {
+                    const response = await fetch('/api/job-applications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            jobId: jobId,
+                            coverLetter: coverLetter,
+                            additionalNotes: additionalNotes
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showSuccessMessage(data.message || 'Application submitted successfully!');
+                        closeJobApplicationPopup();
+                        
+                        // Update the apply button to show "Applied" and increment count
+                        const post = document.querySelector(`.post[data-job-id="${jobId}"]`);
+                        if (post) {
+                            // Update apply button
+                            const applyBtn = post.querySelector('.action-btn');
+                            if (applyBtn) {
+                                applyBtn.classList.add('applied');
+                                applyBtn.style.pointerEvents = 'none';
+                                applyBtn.innerHTML = '<i class="fas fa-check"></i><span>Applied</span>';
+                            }
+                            
+                            // Update application count
+                            const viewsCount = post.querySelector('.views-count');
+                            if (viewsCount) {
+                                const currentText = viewsCount.textContent;
+                                const currentCount = parseInt(currentText) || 0;
+                                viewsCount.textContent = (currentCount + 1) + ' applications';
+                            }
+                        }
+                        
+                        // Refresh posts to ensure data consistency
+                        if (typeof loadPosts === 'function') {
+                            setTimeout(() => loadPosts(true), 1000);
+                        }
+                    } else {
+                        showErrorMessage(data.message || 'Failed to submit application');
+                    }
+                } catch (error) {
+                    console.error('Error submitting application:', error);
+                    showErrorMessage('Network error. Please try again.');
+                } finally {
+                    // Restore button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+            });
+        }
+
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -2248,6 +2379,7 @@
             setupEditJobSeeking();
             setupProfileEditing();
             setupAdvancedFilters();
+            setupJobApplicationForm();
         });
 
     </script>

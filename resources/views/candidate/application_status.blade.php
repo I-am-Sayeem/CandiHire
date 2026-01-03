@@ -89,23 +89,20 @@
                         <div id="candidateNameDisplay" style="color: var(--text-secondary); font-size: 12px;">{{ $candidateName }}</div>
                     </div>
                 </div>
-                <button id="editProfileBtn" style="background: var(--accent); color: white; border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; cursor: pointer; margin-top: 10px; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent)'">
-                    <i class="fas fa-user-edit" style="margin-right: 6px;"></i>Edit Profile
-                </button>
             </div>
             
             <!-- Main Menu Section -->
             <div class="nav-section">
                 <div class="nav-section-title">Main menu</div>
-                <a href="{{ url('candidate/dashboard') }}" class="nav-item">
+                <a href="{{ url('/candidate/dashboard') }}" class="nav-item">
                     <i class="fas fa-home"></i>
                     <span>News feed</span>
                 </a>
-                <a href="{{ url('candidate/cv-builder') }}" class="nav-item">
+                <a href="{{ url('/cv/builder') }}" class="nav-item">
                     <i class="fas fa-file-alt"></i>
                     <span>CV builder</span>
                 </a>
-                <a href="{{ url('candidate/application-status') }}" class="nav-item active">
+                <a href="{{ url('/candidate/applications') }}" class="nav-item active">
                     <i class="fas fa-clipboard-list"></i>
                     <span>Application status</span>
                 </a>
@@ -114,11 +111,11 @@
             <!-- Interviews & Exams Section -->
             <div class="nav-section">
                 <div class="nav-section-title">Interviews & Exams</div>
-                <a href="{{ url('candidate/interview-schedule') }}" class="nav-item">
+                <a href="{{ url('/interview/schedule') }}" class="nav-item">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Interview schedule</span>
                 </a>
-                <a href="{{ url('candidate/attend-exam') }}" class="nav-item">
+                <a href="{{ url('/exam/attend') }}" class="nav-item">
                     <i class="fas fa-pencil-alt"></i>
                     <span>Attend Exam</span>
                 </a>
@@ -130,11 +127,7 @@
                     <i class="fas fa-moon-stars" id="themeIcon"></i>
                     <span id="themeText">Light Mode</span>
                 </button>
-                <!-- Updated logout button to use form submission for Laravel compliance if needed, but keeping simple redirect for parity now -->
-                <form action="{{ route('candidate.logout') }}" method="POST" id="logoutForm" style="display: none;">
-                    @csrf
-                </form>
-                <button id="logoutBtn" class="logout-btn" onclick="document.getElementById('logoutForm').submit();"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</button>
+                <a href="{{ url('/logout') }}" class="logout-btn" style="text-decoration: none; display: flex; justify-content: center; align-items: center;"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
             </div>
         </div>
 
@@ -697,6 +690,54 @@
         const toast = document.getElementById('toast');
         const sortButtons = document.querySelectorAll('.sort-btn');
 
+        // JavaScript version of getStatusColor for modal rendering
+        function getStatusColor(status) {
+            const statusLower = (status || '').toLowerCase();
+            switch (statusLower) {
+                case 'submitted':
+                case 'application submitted':
+                case 'applied':
+                    return '#8b949e';
+                case 'company_invited':
+                case 'company invited':
+                    return '#79c0ff';
+                case 'exam_assigned':
+                case 'mcq exam assigned':
+                    return '#58a6ff';
+                case 'exam_in_progress':
+                case 'mcq exam in progress':
+                    return '#f59e0b';
+                case 'exam_passed':
+                case 'mcq exam passed':
+                    return '#3fb950';
+                case 'waiting_interview':
+                case 'waiting for interview call':
+                    return '#f59e0b';
+                case 'exam_failed':
+                case 'mcq exam failed':
+                case 'rejected':
+                    return '#f85149';
+                case 'interview_scheduled':
+                case 'called for interview':
+                case 'interview scheduled':
+                    return '#f59e0b';
+                case 'under-review':
+                case 'under review':
+                case 'in review':
+                    return '#58a6ff';
+                case 'shortlisted':
+                    return '#79c0ff';
+                case 'offer-extended':
+                case 'offer extended':
+                case 'accepted':
+                    return '#3fb950';
+                case 'withdrawn':
+                    return '#f85149';
+                default:
+                    return '#8b949e';
+            }
+        }
+
 
         // Search functionality
         searchInput.addEventListener('input', function() {
@@ -932,10 +973,33 @@
                     </div>
                 </div>
                 
-                <div class="job-description">
-                    <h3>Job Description</h3>
-                    <p>${application.jobDescription}</p>
+                ${application.coverLetter ? `
+                <div class="cover-letter-section" style="margin-top: 20px; padding: 15px; background: var(--bg-tertiary); border-radius: 8px; border-left: 3px solid var(--accent);">
+                    <h3 style="color: var(--accent); margin-bottom: 10px;"><i class="fas fa-file-alt" style="margin-right: 8px;"></i>Your Cover Letter</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">${application.coverLetter}</p>
                 </div>
+                ` : ''}
+                
+                ${application.notes ? `
+                <div class="notes-section" style="margin-top: 15px; padding: 15px; background: var(--bg-tertiary); border-radius: 8px; border-left: 3px solid var(--accent-2);">
+                    <h3 style="color: var(--accent-2); margin-bottom: 10px;"><i class="fas fa-sticky-note" style="margin-right: 8px;"></i>Additional Notes</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">${application.notes}</p>
+                </div>
+                ` : ''}
+                
+                ${application.jobDescription ? `
+                <div class="job-description" style="margin-top: 20px;">
+                    <h3 style="margin-bottom: 10px;">Job Description</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">${application.jobDescription}</p>
+                </div>
+                ` : ''}
+                
+                ${application.requirements ? `
+                <div class="requirements-section" style="margin-top: 15px;">
+                    <h3 style="margin-bottom: 10px;">Requirements</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">${application.requirements}</p>
+                </div>
+                ` : ''}
                 
                 <div class="status-history">
                     <h3 class="status-history-title">Application Progress</h3>

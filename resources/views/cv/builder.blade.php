@@ -67,7 +67,7 @@
                     <i class="fas fa-moon-stars" id="themeIcon"></i>
                     <span id="themeText">Light Mode</span>
                 </button>
-                <a href="{{ url('/logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
+                <a href="{{ url('/logout') }}" class="logout-btn" style="text-decoration: none; display: flex; justify-content: center; align-items: center;"><i class="fas fa-sign-out-alt" style="margin-right:8px;"></i>Logout</a>
             </div>
         </div>
 
@@ -742,6 +742,12 @@
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             applyTheme(newTheme);
+            
+            // Add smooth transition effect
+            document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+            setTimeout(() => {
+                document.body.style.transition = '';
+            }, 300);
         }
 
         function updateThemeButton(theme) {
@@ -749,12 +755,23 @@
             const icon = document.getElementById('themeIcon');
             const text = document.getElementById('themeText');
             
+            // Add theme data attribute for CSS styling
+            if (btn) {
+                btn.setAttribute('data-theme', theme);
+            }
+            
             if (theme === 'dark') {
-                icon.className = 'fas fa-moon';
-                text.textContent = 'Dark Mode';
-            } else {
-                icon.className = 'fas fa-sun';
+                icon.className = 'fas fa-moon-stars';
                 text.textContent = 'Light Mode';
+                if (btn) {
+                    btn.title = 'Switch to Light Mode';
+                }
+            } else {
+                icon.className = 'fas fa-moon-stars';
+                text.textContent = 'Dark Mode';
+                if (btn) {
+                    btn.title = 'Switch to Dark Mode';
+                }
             }
         }
 
